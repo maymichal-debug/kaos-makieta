@@ -1,0 +1,1256 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>KAOS makieta menu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: szara makieta (wireframe) – sticky header z mega menu, pod nim prosty widok podstrony z okruszkami i blokami-placeholderami */
+:root{
+  --hero-bg:#23282e; --hero-fg:#f3f4f5;
+  --bg:#f3f4f5; --surface:#ffffff; --fg:#1d2126; --muted:#68707a; --line:#d4d8dc; --block:#e3e6e9; --accent:#2b4a6b; --accent-fg:#ffffff;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#15181b; --surface:#1d2125; --fg:#e7eaed; --muted:#9aa3ad; --line:#353b41; --block:#2a2f35; --accent:#8fb3d9; --accent-fg:#10161c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#15181b; --surface:#1d2125; --fg:#e7eaed; --muted:#9aa3ad; --line:#353b41; --block:#2a2f35; --accent:#8fb3d9; --accent-fg:#10161c; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{overflow-x:clip;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.55}
+button{font:inherit;color:inherit}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.note{font-family:var(--mono);font-size:12px;color:var(--muted);background:var(--block);padding:8px 16px;text-align:center}
+.note b{color:var(--fg);font-weight:500}
+
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.bar{max-width:1200px;margin:0 auto;padding-inline:24px;display:flex;align-items:center;gap:32px;height:72px}
+.logo{display:flex;align-items:center;gap:10px;cursor:pointer;background:none;border:0;padding:0}
+.logo-box{width:38px;height:38px;border:1.5px solid var(--fg);display:grid;place-items:center;font-family:var(--mono);font-size:11px}
+.logo-word{font-weight:600;letter-spacing:.18em;font-size:16px}
+nav.main{display:flex;gap:4px;flex:1}
+.nav-link{background:none;border:0;padding:10px 12px;cursor:pointer;font-size:14.5px;font-weight:500;border-bottom:2px solid transparent;display:flex;align-items:center;gap:6px}
+.nav-link:hover,.nav-link.active{border-bottom-color:var(--fg)}
+.nav-link .chev{width:8px;height:8px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform .15s}
+.nav-link[aria-expanded="true"] .chev{transform:rotate(-135deg) translateY(-1px)}
+.cta{background:var(--accent);color:var(--accent-fg);border:0;padding:11px 18px;font-weight:500;font-size:14px;cursor:pointer;white-space:nowrap}
+.hdr-tel{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;white-space:nowrap}
+.hdr-tel svg{width:17px;height:17px;fill:currentColor;flex:none}
+.u-link{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;color:inherit}
+.u-link:hover{text-decoration-thickness:2px}
+@media (max-width:1180px){.hdr-tel span{position:absolute;left:-9999px}.hdr-tel{padding:8px}}
+.burger{display:none;margin-left:auto;background:none;border:1px solid var(--line);width:42px;height:42px;cursor:pointer}
+.burger span{display:block;width:18px;height:1.5px;background:var(--fg);margin:4px auto}
+
+/* mega menu */
+.mega{position:absolute;left:0;right:0;top:100%;background:var(--surface);border-bottom:1px solid var(--line);box-shadow:0 18px 30px -18px rgba(0,0,0,.25)}
+.mega-inner{max-width:1200px;margin:0 auto;padding:28px 24px 32px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:32px}
+.col h3{margin:0 0 14px;font-size:16px;font-weight:600}
+.col h3 button{background:none;border:0;padding:0;cursor:pointer;font-weight:600;text-align:left}
+.col h3 button:hover{text-decoration:underline}
+.col ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.col li{border-bottom:1px solid var(--line)}
+.col li button{width:100%;text-align:left;background:none;border:0;padding:9px 0;cursor:pointer;font-size:14px;display:flex;justify-content:space-between;gap:12px}
+.col li button:hover{color:var(--accent)}
+.col li button::after{content:"→";color:var(--muted)}
+.col .all{margin-top:14px;background:none;border:0;padding:0;cursor:pointer;font-family:var(--mono);font-size:12px;color:var(--accent);text-decoration:underline}
+
+/* mobile drawer */
+.drawer{border-top:1px solid var(--line);background:var(--surface);padding:8px 16px 20px;max-height:calc(100vh - 72px);overflow:auto}
+.drawer .d-link{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:14px 0;font-weight:500;cursor:pointer}
+.drawer details{border-bottom:1px solid var(--line)}
+.drawer summary{padding:14px 0;font-weight:500;cursor:pointer;list-style:none;display:flex;justify-content:space-between}
+.drawer summary::after{content:"+"}
+.drawer details[open]>summary::after{content:"–"}
+.drawer details details{border:0;margin-left:12px}
+.drawer details details summary{font-weight:400;padding:10px 0}
+.drawer .sub{display:block;width:100%;text-align:left;background:none;border:0;padding:7px 0 7px 24px;font-size:14px;color:var(--muted);cursor:pointer}
+.drawer .cta{width:100%;margin-top:16px}
+
+/* page */
+main{max-width:1200px;margin:0 auto;padding:32px 24px 64px}
+.crumbs{font-family:var(--mono);font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.crumbs button{background:none;border:0;padding:0;cursor:pointer;color:var(--muted);text-decoration:underline;font:inherit}
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:clamp(26px,4vw,38px);line-height:1.15;margin:6px 0 14px;text-wrap:balance;font-weight:600}
+.intro{max-width:62ch;color:var(--muted);margin:0 0 28px}
+.ph{background:var(--block);border:1px dashed var(--line);display:grid;place-items:center;color:var(--muted);font-family:var(--mono);font-size:12px;text-align:center;padding:16px}
+.grid{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);padding:20px;display:flex;flex-direction:column;gap:8px;cursor:pointer;text-align:left}
+.card:hover{border-color:var(--fg)}
+.card h3{margin:0;font-size:16px;font-weight:600}
+.card p{margin:0;color:var(--muted);font-size:13.5px}
+.card ul{margin:4px 0 0;padding-left:18px;font-size:13.5px}
+.lines{display:grid;gap:8px;margin:20px 0}
+.lines i{display:block;height:10px;background:var(--block)}
+.lines i:nth-child(3n){width:70%}
+.section{margin-top:56px}
+.section h2{font-size:18px;font-weight:600;margin:0 0 14px}
+
+.hero{margin-inline:calc(50% - 50vw);margin-top:-32px;margin-bottom:40px;background:var(--hero-bg);color:var(--hero-fg);position:relative;min-height:min(78vh,620px);display:flex;align-items:flex-end;overflow:hidden}
+.hero .vid-label{position:absolute;top:20px;right:24px;font-family:var(--mono);font-size:12px;opacity:.7;display:flex;align-items:center;gap:10px}
+.hero .play{width:64px;height:64px;border:1.5px solid currentColor;border-radius:50%;position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);opacity:.35}
+.hero .play::after{content:"";position:absolute;left:26px;top:20px;border-left:16px solid currentColor;border-top:12px solid transparent;border-bottom:12px solid transparent}
+.hero .hero-in{position:relative;width:100%;max-width:1200px;margin:0 auto;padding:48px 24px 56px}
+.hero .tag{color:inherit;opacity:.7}
+.hero h1{max-width:20ch;font-size:clamp(30px,5vw,54px)}
+.hero p{max-width:56ch;margin:0 0 24px;opacity:.8}
+.hero .cta{background:var(--hero-fg);color:var(--hero-bg)}
+
+/* news: karuzela */
+.news-ctrl{display:flex;align-items:center;gap:12px}
+.arrow{width:38px;height:38px;border:1px solid var(--line);background:var(--surface);cursor:pointer}
+.arrow:hover{border-color:var(--fg)}
+.news-track{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 40px)/3);gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;padding-bottom:4px}
+.news-track::-webkit-scrollbar{display:none}
+.news-track>*{scroll-snap-align:start}
+@media (max-width:960px){.news-track{grid-auto-columns:calc((100% - 20px)/2)}}
+@media (max-width:560px){.news-track{grid-auto-columns:85%}.hero .vid-label{left:16px;right:auto}}
+
+/* o kancelarii: tekst + zdjęcie */
+.about{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:48px;align-items:center}
+.about h2{font-size:22px;margin:6px 0 14px}
+.about p{margin:0 0 14px;max-width:58ch;color:var(--muted)}
+.about p strong{color:var(--fg);font-weight:600}
+.about .about-lead{font-size:clamp(18px,1.8vw,21px);line-height:1.4;color:var(--fg);font-weight:500;margin-bottom:20px;text-wrap:pretty}
+.about .btn-outline{margin-top:14px}
+.about-photo{aspect-ratio:4/3;width:100%}
+.btn-outline{background:transparent;border:1.5px solid var(--fg);color:var(--fg);padding:11px 20px;font-weight:500;font-size:14px;cursor:pointer}
+.btn-outline:hover{background:var(--fg);color:var(--bg)}
+.center-btn{display:flex;justify-content:center;margin-top:24px}
+@media (max-width:960px){.about{grid-template-columns:1fr;gap:28px}}
+
+/* podstrona: page hero */
+.subhero{margin-inline:calc(50% - 50vw);margin-top:-32px;background:var(--hero-bg);color:var(--hero-fg);position:relative;min-height:280px;display:flex;align-items:flex-end}
+.subhero-in{width:100%;max-width:1200px;margin:0 auto;padding:40px 24px 44px}
+.subhero .crumbs,.subhero .crumbs button{color:inherit;opacity:.75}
+.subhero h1{font-size:clamp(32px,5vw,52px);margin:0 0 10px}
+.subhero p{margin:0;max-width:56ch;opacity:.8}
+.subhero-label{position:absolute;top:20px;right:24px;font-family:var(--mono);font-size:12px;opacity:.6}
+@media (max-width:560px){.subhero-label{display:none}}
+
+/* aktualności: kategorie, siatka, paginacja */
+.pills-head{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500;margin:36px 0 12px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 32px;scroll-margin-top:140px}
+.nav-link{text-decoration:none;color:inherit}.d-link{text-decoration:none}
+.ext{font-size:.85em;color:var(--muted)}
+.nav-static{cursor:default}.nav-link.nav-static:hover{border-bottom-color:transparent}
+.team.team-all{grid-template-columns:repeat(4,minmax(0,1fr));margin-top:40px}
+@media (max-width:960px){.team.team-all{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.person p+p{margin-top:2px}
+.f-col ul a{font-size:13.5px;text-decoration:none}.f-col ul a:hover{text-decoration:underline}
+.pill{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-size:13.5px;cursor:pointer;white-space:nowrap}
+.pill:hover{border-color:var(--fg)}
+.pill[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.posts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px 24px}
+.post-btn{display:flex;flex-direction:column;gap:10px;width:100%;background:none;border:0;padding:0;text-align:left;cursor:pointer}
+.post-thumb{aspect-ratio:16/10;width:100%}
+.thumb-wrap{position:relative}
+.thumb-pill{position:absolute;left:12px;top:12px;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:var(--surface);color:var(--fg);border-radius:999px;padding:5px 12px;font-size:12px;font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.post h3{margin:0;font-size:17px;font-weight:600;line-height:1.35;text-wrap:pretty}
+.post-btn:hover h3{text-decoration:underline}
+.pager{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:48px;flex-wrap:wrap}
+.pg{min-width:38px;height:38px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-family:var(--mono);font-size:13px}
+.pg:hover{border-color:var(--fg)}
+.pg[aria-current="page"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.pager .arrow:disabled{opacity:.35;cursor:default}
+@media (max-width:960px){.posts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.posts{grid-template-columns:1fr}.pills{flex-wrap:nowrap;overflow-x:auto;margin-inline:-16px;padding-inline:16px;scrollbar-width:none}}
+
+
+/* pojedynczy wpis */
+.post-hero h1{max-width:none}
+.post-meta{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin-top:18px}
+.post-meta time{font-family:var(--mono);font-size:13px;opacity:.85}
+.post-meta .sep{width:1px;height:18px;background:currentColor;opacity:.35}
+.cat-pills{display:flex;flex-wrap:wrap;gap:8px}
+.cat-pill{border:1px solid rgba(243,244,245,.45);border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:500;background:rgba(243,244,245,.08);color:inherit;cursor:pointer}
+.cat-pill:hover{background:var(--hero-fg);color:var(--hero-bg)}
+.variant{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:20px 0 0;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.variant button{font:inherit;border:1px solid var(--line);background:var(--surface);padding:4px 10px;cursor:pointer}
+.variant button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.article{max-width:none;margin:32px 0 0}
+.article .post-cover{float:left;width:min(42%,300px);aspect-ratio:4/3;margin:6px 28px 16px 0}
+.article::after{content:"";display:block;clear:both}
+@media (max-width:560px){.article .post-cover{float:none;width:100%;margin:0 0 20px}}
+.article .lead{font-size:clamp(18px,1.9vw,21px);line-height:1.5;font-weight:500;margin:0 0 24px;text-wrap:pretty}
+.article h2{font-size:22px;font-weight:600;margin:40px 0 12px;line-height:1.3}
+.article p,.article li{font-size:16.5px;line-height:1.7}
+.article p{margin:0 0 16px}
+.article ul,.article ol{margin:0 0 16px;padding-left:22px}
+.article li{margin-bottom:6px}
+.article figure{margin:32px 0}
+.article figure .ph{aspect-ratio:3/2;width:100%}
+.article figcaption{font-size:13px;color:var(--muted);margin-top:8px}
+.sample-note{font-family:var(--mono);font-size:12px;color:var(--muted);border-left:2px solid var(--line);padding:4px 0 4px 12px;margin:0 0 28px}
+.faq{margin-top:48px;border-top:2px solid var(--fg);padding-top:20px}
+.faq h2{margin-top:0}
+.faq details{border-bottom:1px solid var(--line)}
+.faq summary{list-style:none;cursor:pointer;padding:16px 0;font-weight:600;font-size:16px;display:flex;justify-content:space-between;gap:16px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font-weight:400;font-size:20px;line-height:1}
+.faq details[open] summary::after{content:"–"}
+.faq details p{margin:0 0 18px;color:var(--muted);font-size:15.5px}
+.author{display:grid;grid-template-columns:72px minmax(0,1fr);gap:16px;align-items:center;margin-top:48px;padding:20px;background:var(--surface);border:1px solid var(--line)}
+.author .ph{width:72px;height:72px;border-radius:50%;padding:0;font-size:10px}
+.author b{display:block;font-size:15px}
+.author span{font-size:13px;color:var(--muted)}
+.newsletter{margin-top:56px;background:var(--hero-bg);color:var(--hero-fg);padding:32px clamp(20px,4vw,40px);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:center}
+.newsletter h2{margin:0 0 6px;font-size:22px}
+.newsletter p{margin:0;opacity:.8}
+.nl-form{display:flex;gap:8px}
+.nl-form input{flex:1;min-width:0;font:inherit;padding:11px 12px;border:1px solid rgba(243,244,245,.4);background:transparent;color:inherit}
+.nl-form button{background:var(--hero-fg);color:var(--hero-bg);border:0;padding:11px 18px;font-weight:500;cursor:pointer}
+.nl-consent{grid-column:1/-1;margin:0;font-size:12px;line-height:1.5;opacity:.7;max-width:none}
+@media (max-width:760px){.newsletter{grid-template-columns:1fr}.nl-form{flex-direction:column}}
+
+
+/* strona członka zespołu */
+.bio{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:56px;align-items:start}
+.bio h1{font-size:clamp(32px,4.5vw,48px);margin:4px 0 6px}
+.bio .role{font-size:17px;color:var(--muted);margin:0 0 24px}
+.bio .bio-text p{font-size:16.5px;line-height:1.7;margin:0 0 16px}
+.bio-facts{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 20px;margin:24px 0;padding:20px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:14.5px}
+.bio-facts dt{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:3px}
+.bio-facts dd{margin:0}
+.bio-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.li-btn{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--fg);padding:9px 14px;font-weight:500;font-size:14px;cursor:default}
+.li-btn svg{width:18px;height:18px;fill:currentColor}
+.bio-photo{aspect-ratio:4/5;width:100%;position:sticky;top:96px}
+@media (max-width:860px){.bio{grid-template-columns:1fr;gap:28px}.bio-photo{position:static;order:-1;max-width:420px}}
+.areas.person-areas{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:960px){.areas.person-areas{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:420px){.areas.person-areas{grid-template-columns:1fr}}
+
+
+/* strony tekstowe */
+.legal{margin-top:40px}
+.toc{position:sticky;top:96px;font-size:13.5px}
+.toc h2{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500;margin:0 0 10px}
+.toc ol{list-style:none;margin:0;padding:0;border-left:1px solid var(--line)}
+.toc a{display:block;padding:5px 0 5px 14px;text-decoration:none;color:var(--muted)}
+.toc a:hover{color:var(--fg)}
+.legal-body{max-width:none}
+.legal-body h2{font-size:20px;font-weight:600;margin:36px 0 10px;scroll-margin-top:100px}
+.legal-body h2:first-of-type{margin-top:0}
+.legal-body p,.legal-body li{font-size:16px;line-height:1.7}
+.legal-body p{margin:0 0 14px}
+.legal-body ul{margin:0 0 14px;padding-left:22px}
+.legal-body .sample-note{font-size:12px;line-height:1.5}
+.legal-updated{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:40px;padding-top:16px;border-top:1px solid var(--line)}
+.f-bottom button{background:none;border:0;padding:0;font:inherit;color:inherit;cursor:pointer}
+.f-bottom button:hover{text-decoration:underline}
+
+
+/* kontakt */
+.ct{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:48px;margin-top:40px;align-items:start}
+.ct-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.ct-card{background:var(--surface);border:1px solid var(--line);padding:22px}
+.ct-card.wide{grid-column:1/-1}
+.ct-card h2{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500;margin:0 0 12px}
+.ct-card p{margin:0 0 6px;font-size:15px}
+.ct-card .big{font-size:18px;font-weight:600}
+.ct-card dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 16px;margin:0;font-size:14px}
+.ct-card dt{color:var(--muted)}
+.ct-card dd{margin:0;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.ct-form{background:var(--surface);border:1px solid var(--line);padding:32px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.ct-form h2{grid-column:1/-1;margin:0;font-size:22px}
+.ct-form .full{grid-column:1/-1}
+.field .req{color:var(--accent)}
+.field .err{color:#b42318;font-size:12px;display:none}
+.field.invalid input,.field.invalid textarea{border-color:#b42318}
+.field.invalid .err{display:block}
+.consent.invalid{color:#b42318}
+.map{margin-top:56px;height:380px;position:relative}
+.map .pin{width:22px;height:22px;border-radius:50% 50% 50% 0;background:var(--accent);transform:rotate(-45deg);margin-bottom:10px}
+.cta-band{margin-top:56px;background:var(--hero-bg);color:var(--hero-fg);padding:36px clamp(20px,4vw,48px);display:flex;flex-wrap:wrap;gap:20px 32px;align-items:center;justify-content:space-between}
+.cta-band h2{margin:0 0 6px;font-size:24px}
+.cta-band p{margin:0;opacity:.8;max-width:56ch}
+.cta-band.ct-top{margin-top:40px}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.steps li{border-top:2px solid var(--fg);padding-top:16px}
+.steps .num{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.steps h3{margin:6px 0 6px;font-size:17px;font-weight:600}
+.steps p{margin:0;color:var(--muted);font-size:14.5px}
+@media (max-width:760px){.steps{grid-template-columns:1fr}}
+.cta-band .cta{background:var(--hero-fg);color:var(--hero-bg);padding:14px 24px;font-size:15px}
+@media (max-width:960px){.ct{grid-template-columns:1fr}}
+@media (max-width:560px){.ct-groups{grid-template-columns:1fr}.ct-form{grid-template-columns:1fr;padding:22px}.map{height:280px}}
+
+
+/* umów się on-line */
+.book-opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-top:40px}
+.book-box{background:var(--surface);border:1px solid var(--line);padding:32px;display:flex;flex-direction:column;gap:12px}
+.book-box.primary{border:2px solid var(--fg)}
+.book-box h2{margin:0;font-size:24px;line-height:1.25}
+.book-box p{margin:0;color:var(--muted)}
+.book-art{aspect-ratio:16/9;margin-bottom:8px}
+.book-box .cta{align-self:flex-start;margin-top:8px;padding:13px 22px;font-size:15px}
+.book-box.secondary .cta{background:var(--fg);color:var(--bg)}
+.zencal{height:520px;margin-top:32px}
+.rules{margin-top:64px}
+.rules h2{font-size:22px;margin:0 0 16px}
+.rules-body{position:relative;max-height:330px;overflow:hidden;transition:max-height .4s ease}
+.rules-body::after{content:"";position:absolute;left:0;right:0;bottom:0;height:120px;background:linear-gradient(to bottom,transparent,var(--bg));pointer-events:none;transition:opacity .3s}
+.rules.open .rules-body{max-height:4000px}
+.rules.open .rules-body::after{opacity:0}
+.rules-body h3{font-size:16px;margin:20px 0 6px}
+.rules-body p{margin:0 0 12px;font-size:15.5px;line-height:1.7}
+.rules-toggle{margin-top:16px}
+@media (max-width:760px){.book-opts{grid-template-columns:1fr}.book-box{padding:24px}}
+
+
+/* umawiarka (makieta widgetu ZenCal) */
+.zc{display:grid;grid-template-columns:300px minmax(0,1fr);background:var(--surface);border:1px solid var(--line);margin-top:40px}
+.zc-side{padding:28px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:14px}
+.zc-side h2{margin:0;font-size:20px;line-height:1.3}
+.zc-meta{list-style:none;margin:0;padding:0;display:grid;gap:10px;font-size:14px;color:var(--muted)}
+.zc-meta li{display:flex;gap:10px;align-items:center}
+.zc-meta svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.6;flex:none}
+.zc-sel{margin-top:auto;padding-top:14px;border-top:1px solid var(--line);font-size:14px}
+.zc-sel b{display:block}
+.zc-main{padding:28px;min-width:0}
+.zc-steps{display:flex;gap:8px;font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:20px;flex-wrap:wrap}
+.zc-steps span[aria-current="step"]{color:var(--fg);font-weight:500;text-decoration:underline;text-underline-offset:4px}
+.zc-pick{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:28px}
+.zc-month{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-weight:600}
+.zc-month .arrow{width:34px;height:34px}
+.zc-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;text-align:center}
+.zc-grid .dow{font-family:var(--mono);font-size:11px;color:var(--muted);padding:6px 0}
+.zc-day{aspect-ratio:1/1;border:0;background:none;font-size:14px;cursor:default;color:var(--muted);opacity:.5}
+.zc-day.av{opacity:1;color:var(--fg);background:var(--block);cursor:pointer;font-weight:600}
+.zc-day.av:hover{outline:1px solid var(--fg)}
+.zc-day[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg)}
+.zc-slots h3{margin:0 0 12px;font-size:15px}
+.zc-slots .list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.zc-slot{border:1px solid var(--accent);color:var(--accent);background:none;padding:10px;font-weight:500;cursor:pointer}
+.zc-slot:hover,.zc-slot[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg)}
+.zc-next{margin-top:16px;width:100%}
+.zc-form{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:640px}
+.zc-form .full{grid-column:1/-1}
+.zc-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.zc-done{text-align:center;padding:40px 0;max-width:460px;margin:0 auto}
+.zc-done .ok{width:56px;height:56px;border-radius:50%;background:var(--accent);color:var(--accent-fg);display:grid;place-items:center;font-size:26px;margin:0 auto 16px}
+.zc-note{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px}
+@media (max-width:900px){.zc{grid-template-columns:1fr}.zc-side{border-right:0;border-bottom:1px solid var(--line)}.zc-pick{grid-template-columns:1fr}.zc-sel{margin-top:0}}
+@media (max-width:560px){.zc-form{grid-template-columns:1fr}.zc-main,.zc-side{padding:20px}}
+
+/* 404 */
+.e404{margin-inline:calc(50% - 50vw);margin-top:-32px;background:var(--hero-bg);color:var(--hero-fg)}
+.e404-in{max-width:1200px;margin:0 auto;padding:72px 24px;min-height:min(70vh,560px);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;align-items:center}
+.e404 h1{font-size:clamp(32px,5vw,52px);margin:8px 0 14px;line-height:1.1}
+.e404 p{opacity:.8;max-width:44ch;margin:0 0 28px}
+.e404 .cta{background:var(--hero-fg);color:var(--hero-bg)}
+.e404-art{position:relative;aspect-ratio:4/3;border:1px dashed rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center}
+.e404-art span{font-size:clamp(96px,16vw,200px);font-weight:700;letter-spacing:-.04em;line-height:1;color:transparent;-webkit-text-stroke:2px var(--hero-fg)}
+.e404-art em{position:absolute;bottom:12px;right:14px;font-style:normal;font-family:var(--mono);font-size:12px;opacity:.6}
+@media (max-width:760px){.e404-in{grid-template-columns:1fr;padding:48px 16px;min-height:0}.e404-art{order:-1;aspect-ratio:16/9}}
+/* O kancelarii */
+.gc{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:72px;align-items:start}
+.gc-stick{position:sticky;top:calc(50vh - 130px)}
+.gc-art{width:100%;max-width:320px;display:block}
+.gc-seg path{fill:transparent;stroke:var(--fg);stroke-width:1.5;transition:fill .45s ease}
+.gc-seg text{font-family:var(--mono);font-size:13px;text-anchor:middle;fill:var(--fg);transition:fill .45s ease}
+.gc-seg.on path{fill:var(--fg)}.gc-seg.on text{fill:var(--bg)}
+.gc-list{list-style:none;margin:0;padding:0}
+.gf-r rect{fill:transparent;stroke:var(--fg);stroke-width:1.5;vector-effect:non-scaling-stroke;transition:fill .45s ease}
+.gf-r text{font-family:var(--mono);font-size:12px;fill:var(--fg);transition:fill .45s ease}
+.gf-r[data-k="0"] text{text-anchor:middle}
+.gf-r.on rect{fill:var(--fg)}.gf-r.on text{fill:var(--bg)}
+.gf-r[data-k="2"].on ~ .gf-r rect{fill:transparent;stroke:var(--bg)}.gf-r[data-k="2"].on ~ .gf-r text{fill:var(--bg)}
+.gf-r[data-k="1"].on ~ .gf-r rect{stroke:var(--bg)}.gf-r[data-k="1"].on ~ .gf-r text{fill:var(--bg)}
+.gc .gf{overflow:hidden}
+
+.gc-step{min-height:62vh;display:flex;align-items:center;border-left:2px solid var(--line);padding-left:28px;opacity:.3;transition:opacity .4s ease,border-color .4s ease}
+.gc-step.on{opacity:1;border-left-color:var(--fg)}
+.gc-step:first-child{min-height:44vh;align-items:flex-start;padding-top:40px}
+.gc-step:last-child{min-height:44vh;align-items:flex-end;padding-bottom:40px}
+.gc-step h3{margin:6px 0 10px;font-size:clamp(22px,2.6vw,30px);line-height:1.2}.gc-step p{margin:0;color:var(--muted);max-width:52ch;font-size:16px}
+.vtree{display:grid;justify-items:center}
+.vt-hub{width:112px;height:112px;border-radius:50%;background:var(--hero-bg);color:var(--hero-fg);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:18px}
+.vt-stem{height:28px;border-left:2px dashed var(--line)}
+.vt-row{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;position:relative;padding-top:28px}
+.vt-row::before{content:"";position:absolute;top:0;left:calc((100% - 48px)/6);right:calc((100% - 48px)/6);border-top:2px dashed var(--line)}
+.vt-node{position:relative;background:var(--surface);border:1.5px solid var(--fg);padding:20px 22px}
+.vt-node::before{content:"";position:absolute;left:50%;top:-30px;height:28px;border-left:2px dashed var(--line)}
+.vt-node .num{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.vt-node h3{margin:4px 0 6px;font-size:18px}.vt-node p{margin:0;font-size:14.5px;color:var(--muted)}
+@media (max-width:860px){.gc{grid-template-columns:1fr;gap:0}
+ .gc-stick{top:72px;z-index:2;background:var(--bg);padding:12px 0}.gc-art{max-width:150px;margin:0 auto}
+ .gc-step,.gc-step:first-child,.gc-step:last-child{min-height:48vh;align-items:center;padding:0 0 0 20px}
+ .vt-row{grid-template-columns:1fr;gap:14px}.vt-row::before{left:50%;right:auto;top:0;bottom:0;border-top:0;border-left:2px dashed var(--line)}.vt-node::before{display:none}}
+.how{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;position:relative}
+.how::before{content:"";position:absolute;left:0;right:0;top:7px;border-top:1.5px solid var(--fg)}
+.how li{position:relative;padding-top:30px}
+.how .dot{position:absolute;top:0;left:0;width:16px;height:16px;border-radius:50%;background:var(--bg);border:1.5px solid var(--fg)}
+.how li:last-child .dot{background:var(--fg)}
+.how .num{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.how h3{margin:4px 0 6px;font-size:19px}.how p{margin:0;color:var(--muted);font-size:14.5px}
+@media (max-width:860px){.how{grid-template-columns:1fr;padding-left:28px}.how::before{left:7px;right:auto;top:0;bottom:0;border-top:0;border-left:1.5px solid var(--fg)}.how li{padding-top:0}.how .dot{left:-28px}}
+.stats{margin-inline:calc(50% - 50vw);margin-top:64px;background:var(--hero-bg);color:var(--hero-fg)}
+.stats-in{max-width:1200px;margin:0 auto;padding:64px 24px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:48px 24px}
+.spec-all{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:32px;background:var(--surface);border:1px solid var(--line);padding:28px}
+@media (max-width:960px){.spec-all{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.spec-all{grid-template-columns:1fr;padding:20px}}
+.stats-h{max-width:1200px;margin:0 auto;padding:56px 24px 0;font-size:clamp(22px,2.6vw,30px)}
+@media (max-width:760px){.stats-h{padding:40px 16px 0}}
+.stats strong{display:block;white-space:nowrap;font-size:clamp(26px,3.6vw,48px);line-height:1;letter-spacing:-.02em}
+.stats span{display:block;margin-top:8px;opacity:.75;font-size:14.5px}
+@media (max-width:760px){.stats-in{grid-template-columns:repeat(2,minmax(0,1fr));padding:36px 16px}}
+.awards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+.award{background:var(--surface);border:1px solid var(--line);padding:18px}
+.award .ph{aspect-ratio:3/2}.award h3{margin:12px 0 2px;font-size:15px}.award p{margin:0;font-size:13px;color:var(--muted)}
+@media (max-width:760px){.awards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.f-li{display:inline-flex;align-items:center;gap:8px;margin-top:6px;color:inherit;text-decoration:none;font-weight:500}
+.f-li svg{width:22px;height:22px;fill:currentColor}
+.f-li:hover span{text-decoration:underline}
+/* podstrona usługi */
+.subhero-kicker{display:block;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;opacity:.7;margin:18px 0 8px}
+.svc-intro{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:56px;align-items:start}
+.svc-intro h2{margin-top:0}.svc-intro p{color:var(--fg);font-size:16.5px;line-height:1.65}
+.svc-scope{background:var(--surface);border:1px solid var(--line);padding:28px}
+.svc-scope h3{margin:0 0 14px;font-size:17px}
+.svc-scope ul{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.svc-scope li{display:flex;gap:12px;align-items:flex-start;font-size:15px}
+.svc-scope svg{width:22px;height:22px;flex:none;stroke:var(--fg);fill:none;stroke-width:2;border:1.5px solid var(--fg);border-radius:50%;padding:2px}
+.svc-quote{margin-inline:calc(50% - 50vw);margin-top:72px;background:var(--hero-bg);color:var(--hero-fg)}
+.sq-stick{min-height:56vh;padding-block:72px !important;display:flex;flex-direction:column;justify-content:center;padding:0 max(24px,calc(50vw - 576px))}
+.svc-quote .tag{opacity:.7}
+.svc-quote blockquote{margin:16px 0 0;font-size:clamp(30px,4.6vw,60px);line-height:1.2;letter-spacing:-.01em;max-width:24ch;font-weight:500}
+.svc-quote blockquote span{opacity:.18;transition:opacity .35s ease}
+.svc-quote blockquote span.lit{opacity:1}
+@media (prefers-reduced-motion:reduce){.svc-quote{height:auto}.svc-quote blockquote span{opacity:1}}
+
+.svc-text p{font-size:16.5px;line-height:1.7}
+.svc-lists{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-top:32px}
+.svc-lists h3{margin:0 0 10px;font-size:16px;padding-top:14px;border-top:2px solid var(--fg)}
+.svc-lists ul{margin:0;padding-left:18px;display:grid;gap:8px;color:var(--muted);font-size:15px}
+.svc-scope{position:sticky;top:96px}
+.svc-op-wrap{margin-top:64px}
+.svc-op{margin:0;position:relative;overflow:hidden;background:var(--hero-bg);color:var(--hero-fg);padding:44px clamp(24px,5vw,72px) 40px}
+.op-car .slide-q{min-height:4.2em}
+.op-car .car-ctrl{border-top-color:rgba(255,255,255,.18);margin-top:24px;position:relative}
+.op-car .arrow{background:transparent;color:var(--hero-fg);border-color:rgba(255,255,255,.35)}
+.op-car .arrow:hover{border-color:var(--hero-fg)}
+.op-car .dots button{border-color:var(--hero-fg)}.op-car .dots button[aria-current="true"]{background:var(--hero-fg)}
+.op-mark{position:absolute;top:120px;right:48px;font-family:Georgia,serif;font-size:280px;line-height:1;opacity:.08;pointer-events:none}
+.op-top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;position:relative}
+.op-top .tag{opacity:.7;color:inherit}
+.op-who{flex-wrap:wrap}
+.op-logo{margin-left:auto;display:flex;align-items:center;gap:10px;min-height:56px;padding:0 24px;border:1px solid rgba(255,255,255,.25);font-size:1.15em}
+.op-logo>span:only-child{font-family:var(--mono);font-size:12px;opacity:.7}
+.svc-op .slide-q{margin:28px 0 0;font-size:clamp(21px,2.6vw,30px);line-height:1.4;max-width:46ch;text-wrap:pretty;font-weight:500;position:relative}
+.op-who{display:flex;align-items:center;gap:14px;margin-top:32px;padding-top:22px;border-top:1px solid rgba(255,255,255,.18)}
+.op-avatar{width:44px;height:44px;border-radius:50%;padding:0;font-size:9px;flex:none;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.3);color:inherit}
+.op-who b{display:block;font-weight:600;font-size:15px}.op-who span{font-size:13px;opacity:.7}
+@media (max-width:560px){.op-mark{font-size:180px;top:auto;bottom:-110px;right:16px}}
+@media (max-width:860px){.svc-lists{grid-template-columns:1fr}.svc-scope{position:static}}
+.team.svc-team{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:860px){.svc-intro{grid-template-columns:1fr;gap:28px}.team.svc-team{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* CTA we wpisie */
+.post-cta{margin-top:24px;background:var(--hero-bg);color:var(--hero-fg);padding:28px clamp(20px,3vw,36px);display:flex;flex-wrap:wrap;gap:20px 32px;align-items:center;justify-content:space-between}
+.post-cta .tag{opacity:.7;color:inherit}
+.post-cta h2{margin:6px 0 6px;font-size:22px}
+.post-cta p{margin:0;opacity:.8;max-width:60ch;font-size:15px}
+.post-cta .cta{background:var(--hero-fg);color:var(--hero-bg);padding:14px 24px;font-size:15px}
+/* kontakt: partnerzy */
+.contact .left.left-pt{display:block}
+.partners{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:20px 0}
+.partners .pt{display:grid;grid-template-columns:72px 1fr;gap:12px;align-items:center}.partners .pt>div:last-child{min-width:0}
+.contact .left .partners .ph{width:72px;aspect-ratio:1;font-size:10px;margin:0}
+.partners b{display:block;font-size:15px;font-weight:600}.partners span{font-size:13px;color:var(--muted)}
+.pt-note{font-size:13px;color:var(--muted);margin:0 0 16px}
+/* grupa specjalizacji: kafelki usług */
+.svc-tiles{display:grid;gap:24px;grid-template-columns:repeat(3,minmax(0,1fr))}
+.svc-tile{background:var(--surface);border:1px solid var(--line);padding:20px;display:flex;flex-direction:column;gap:8px;text-align:left;cursor:pointer;color:inherit;font:inherit}
+.svc-tile:hover{border-color:var(--fg)}
+.svc-art{aspect-ratio:16/9;margin-bottom:8px}
+.svc-tile .num{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.svc-tile h3{margin:0;font-size:19px;line-height:1.3}
+.svc-tile p{margin:0;color:var(--muted);font-size:14.5px}
+.svc-go{margin-top:auto;padding-top:10px;font-weight:500;font-size:14px}
+.svc-tile:hover .svc-go{text-decoration:underline}
+.svc-tiles.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.svc-tiles.two .svc-art{aspect-ratio:21/9}
+@media (max-width:960px){.svc-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.svc-tiles{grid-template-columns:1fr}}
+/* obszary: proste kafelki */
+.areas{display:grid;gap:20px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.area-tile{background:var(--surface);border:1px solid var(--line);min-height:150px;padding:20px;display:flex;flex-direction:column;justify-content:space-between;gap:16px;cursor:pointer;text-align:left}
+.area-tile:hover{border-color:var(--fg)}
+.area-tile .num{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.area-tile h3{margin:0;font-size:17px;font-weight:600;line-height:1.3;text-wrap:balance;display:flex;justify-content:space-between;align-items:end;gap:12px}
+.area-tile h3::after{content:"→";font-weight:400;color:var(--muted)}
+.area-tile:hover h3::after{color:var(--fg)}
+@media (max-width:960px){.areas{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:420px){.areas{grid-template-columns:1fr}.area-tile{min-height:110px}}
+
+/* home: opinie, logotypy, kontakt, stopka */
+.sec-head{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.sec-head h2{margin:0}
+.more{background:none;border:0;padding:0;cursor:pointer;font-family:var(--mono);font-size:12px;color:var(--accent);text-decoration:underline}
+.carousel{background:var(--surface);border:1px solid var(--line);padding:32px clamp(20px,4vw,48px)}
+.slide blockquote{margin:0;font-size:clamp(17px,2vw,21px);line-height:1.45;text-wrap:pretty;max-width:60ch}
+.q-foot{display:flex;align-items:center;gap:14px;margin-top:24px;flex-wrap:wrap}
+.q-avatar{width:52px;height:52px;border-radius:50%;padding:0;font-size:10px;flex:none}
+.q-who{display:grid;font-size:14px;min-width:0}
+.q-who b{font-weight:600}
+.q-who span{color:var(--muted);font-size:13px}
+.q-logo{margin-left:auto;display:flex;align-items:center;gap:8px;color:var(--muted);padding-left:20px;border-left:1px solid var(--line);height:40px}
+.car-ctrl{display:flex;align-items:center;gap:12px;margin-top:28px;padding-top:20px;border-top:1px solid var(--line)}
+.dots{display:flex;gap:6px;margin-left:8px}
+.dots button{width:9px;height:9px;border-radius:50%;border:1px solid var(--fg);background:transparent;padding:0;cursor:pointer}
+.dots button[aria-current="true"]{background:var(--fg)}
+.team{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.person .ph{aspect-ratio:1/1;max-width:100%}
+.person h3{margin:10px 0 0;font-size:15px;font-weight:600}
+.person p{margin:0;font-size:13px;color:var(--muted)}
+.logos{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.logos div{border-right:1px solid var(--line);border-bottom:1px solid var(--line);height:96px;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--muted);background:var(--surface)}
+.lg1{font-weight:600;letter-spacing:.3em;font-size:15px}
+.lg2{font-family:Georgia,serif;font-style:italic;font-size:20px}
+.lg3{font-family:var(--mono);font-size:15px;letter-spacing:.05em}
+.lg4{font-weight:300;font-size:22px;letter-spacing:-.02em}
+.mk{width:20px;height:20px;border:2px solid currentColor;flex:none}
+.mk.c{border-radius:50%}.mk.d{transform:rotate(45deg);width:15px;height:15px}.mk.f{background:currentColor}
+.contact{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);background:var(--surface);border:1px solid var(--line)}
+.contact .left{padding:32px;display:grid;grid-template-columns:140px minmax(0,1fr);gap:24px;align-content:start;border-right:1px solid var(--line)}
+.contact .left .ph{aspect-ratio:4/5;max-width:100%}
+.contact .left h3{margin:0 0 2px;font-size:18px;font-weight:600}
+.contact .left .role{margin:0 0 16px;color:var(--muted);font-size:13px}
+.contact dl{margin:0 0 20px;display:grid;gap:6px;font-size:14px}
+.contact dt{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.contact dd{margin:0 0 6px;user-select:all}
+.contact .cta-head{grid-column:1/-1}
+.contact .cta-head h2{margin:0 0 6px;font-size:22px}
+.contact .cta-head p{margin:0;color:var(--muted)}
+.contact form{padding:32px;display:grid;gap:14px;grid-template-columns:1fr 1fr}
+.contact .full{grid-column:1/-1}
+.field{display:grid;gap:5px;font-size:13px}
+.field input,.field textarea{font:inherit;font-size:14px;padding:10px 12px;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:0}
+.field textarea{min-height:120px;resize:vertical}
+.field .opt{color:var(--muted)}
+.form-foot{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.consent{font-size:12px;color:var(--muted);display:flex;gap:8px;align-items:flex-start}
+.btn-send{background:var(--fg);color:var(--bg);border:0;padding:12px 26px;font-weight:500;cursor:pointer}
+.sent{font-size:13px;color:var(--accent)}
+
+/* stopka */
+footer.site{border-top:1px solid var(--line);background:var(--surface)}
+.f-in{max-width:1200px;margin:0 auto;padding:48px 24px 32px;display:grid;grid-template-columns:1.3fr .8fr 1.3fr 1.3fr;gap:32px}
+.f-area+.f-area{margin-top:20px}
+.f-area h5{margin:0 0 8px;font-size:13.5px;font-weight:600}
+.f-area h5 button{background:none;border:0;padding:0;cursor:pointer;font:inherit;text-align:left}
+.f-area h5 button:hover{text-decoration:underline}
+.f-area ul button{color:var(--muted)}
+.f-brand p{margin:14px 0 0;color:var(--muted);font-size:14px;max-width:30ch}
+.f-col h4{margin:0 0 12px;font-size:12px;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.f-col ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.f-col ul button{background:none;border:0;padding:0;text-align:left;cursor:pointer;font-size:13.5px}
+.f-col ul button:hover{text-decoration:underline}
+.f-brand address{font-style:normal;font-size:13.5px;display:grid;gap:4px;margin:20px 0 16px}
+.f-col .cta{padding:9px 14px;font-size:13px}
+.f-bottom{max-width:1200px;margin:0 auto;padding:16px 24px 28px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--muted)}
+@media (max-width:960px){
+  .f-in{grid-template-columns:repeat(2,minmax(0,1fr))}.f-brand{grid-column:1/-1}
+  .contact{grid-template-columns:1fr}.contact .left{border-right:0;border-bottom:1px solid var(--line)}
+  .logos{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:560px){
+  .q-logo{margin-left:0;padding-left:0;border-left:0;width:100%}
+  .contact .left{grid-template-columns:1fr}.contact .left .ph{width:140px}
+  .contact form{grid-template-columns:1fr;padding:24px}.contact .left{padding:24px}
+  .f-in{grid-template-columns:1fr}
+}
+
+@media (max-width:960px){
+  nav.main,.bar>.cta{display:none}
+  .bar{gap:12px}
+  .bar>.hdr-tel{margin-left:auto;padding:0}.bar>.hdr-tel span{position:static}
+  .burger{display:block;margin-left:0}
+  .mega{display:none}
+}
+@media (max-width:480px){.bar,main{padding-inline:16px}}
+@media (max-width:350px){.bar>.hdr-tel span{position:absolute;left:-9999px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* komunikat cookies */
+.cookie{position:fixed;left:24px;bottom:24px;z-index:50;width:min(380px,calc(100vw - 32px));background:var(--surface);color:var(--fg);border:1px solid var(--fg);box-shadow:0 18px 40px -16px rgba(0,0,0,.35);padding:20px}
+.cookie h2{margin:0 0 6px;font-size:16px}
+.cookie p{margin:0;font-size:13.5px;color:var(--muted);line-height:1.5}
+.cookie p button{background:none;border:0;padding:0;font:inherit;color:var(--fg);text-decoration:underline;cursor:pointer}
+.ck-opts{margin:14px 0 0;padding:0;border:0;display:grid;gap:8px;font-size:13.5px}
+.ck-opts legend{position:absolute;left:-9999px}
+.ck-opts label{display:flex;gap:10px;align-items:center}
+.ck-act{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.ck-act button{padding:10px 14px;font-size:13.5px;font-weight:500;cursor:pointer;border:1.5px solid var(--fg)}
+.ck-act .ck-yes{background:var(--fg);color:var(--bg)}
+.ck-act .ck-alt{background:none;color:var(--fg)}
+@media (max-width:480px){.cookie{left:16px;bottom:16px}}
+</style>
+
+<div class="note">Makieta poglądowa · <b>KAOS – struktura menu</b> · kliknij „Specjalizacje”, żeby rozwinąć mega menu</div>
+
+<header id="hdr">
+  <div class="bar">
+    <button class="logo" data-go="home" aria-label="Strona główna">
+      <span class="logo-box">LOGO</span><span class="logo-word">KAOS</span>
+    </button>
+    <nav class="main" aria-label="Menu główne">
+      <button class="nav-link" data-go="o-kancelarii">O kancelarii</button>
+      <button class="nav-link" id="spec-btn" aria-expanded="false" aria-controls="mega">Specjalizacje <span class="chev"></span></button>
+      <button class="nav-link" data-go="zespol">Zespół</button>
+      <button class="nav-link" data-go="baza-wiedzy">Baza wiedzy</button>
+      <button class="nav-link" data-go="aktualnosci">Aktualności</button>
+      <button class="nav-link" data-go="kontakt">Kontakt</button>
+    </nav>
+    <a class="hdr-tel u-link" href="tel:+48226220385"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg><span>+48 22 622 03 85</span></a>
+    <button class="cta" data-go="umow">Umów się on-line</button>
+    <button class="burger" id="burger" aria-label="Otwórz menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  </div>
+  <div class="mega" id="mega" hidden>
+    <div class="mega-inner" id="mega-cols"></div>
+  </div>
+  <div class="drawer" id="drawer" hidden></div>
+</header>
+
+<main id="view"></main>
+
+<footer class="site" id="site-footer"></footer>
+
+<script>
+const AREAS=[
+ {id:"rynek-kapitalowy",name:"Rynek kapitałowy",lead:"Dla spółek publicznych, emitentów i inwestorów",
+  items:["Spółki publiczne (GPW, NewConnect, Catalyst)","Emisje akcji"]},
+ {id:"transakcje",name:"Transakcje i inwestycje",lead:"Gdy wchodzi inwestor, zmienia się właściciel lub forma spółki",
+  items:["Umowy inwestycyjne","Transakcje nabycia udziałów i akcji (M&A)","Przekształcenia i łączenie spółek"]},
+ {id:"obsluga",name:"Obsługa spółek i majątku",lead:"Stała opieka prawna i ochrona majątku",
+  items:["Bieżąca obsługa prawna spółek kapitałowych","ASI i fundacje rodzinne","Nieruchomości"]},
+ {id:"spory",name:"Spory i sytuacje kryzysowe",lead:"Gdy sprawa trafia do sądu lub firma jest pod presją",
+  items:["Spory sądowe, instrumenty finansowe i zabezpieczenia","Restrukturyzacja i upadłość","Przestępczość gospodarcza (white-collar crime)"]}
+];
+const SIMPLE={
+ "aktualnosci":{name:"Aktualności",intro:"Komentarze do zmian w prawie, sukcesy kancelarii, wydarzenia. Lista wpisów z filtrem po obszarze.",grid:["Wpis 1 · Rynek kapitałowy","Wpis 2 · Spory","Wpis 3 · Transakcje","Wpis 4","Wpis 5","Wpis 6"]},
+};
+const SVC_DESC={"Umowy inwestycyjne":"Negocjujemy i przygotowujemy umowy z inwestorami i wspólnikami.","Transakcje nabycia udziałów i akcji (M&A)":"Prowadzimy kupno i sprzedaż spółek: od badania due diligence po zamknięcie transakcji.","Przekształcenia i łączenie spółek":"Zmieniamy formę spółek i łączymy je sprawnie, bez przestojów w działalności.",
+ "Spółki publiczne (GPW, NewConnect, Catalyst)":"Wspieramy emitentów w obowiązkach informacyjnych, walnych zgromadzeniach i ładzie korporacyjnym.","Emisje akcji":"Prowadzimy pozyskanie kapitału: od uchwały emisyjnej po rejestrację i wprowadzenie akcji do obrotu.",
+ "Spory sądowe, instrumenty finansowe i zabezpieczenia":"Reprezentujemy w sporach gospodarczych i sporach o instrumenty finansowe, zabezpieczamy roszczenia.","Restrukturyzacja i upadłość":"Pomagamy uniknąć upadłości, a gdy do niej dochodzi, chronimy interes dłużnika lub wierzyciela.","Przestępczość gospodarcza (white-collar crime)":"Bronimy członków zarządu i firmy w sprawach karnych gospodarczych i skarbowych.",
+ "Bieżąca obsługa prawna spółek kapitałowych":"Stałe wsparcie zarządu w codziennych sprawach korporacyjnych, umowach i uchwałach.","ASI i fundacje rodzinne":"Budujemy struktury, które chronią majątek i porządkują sukcesję w rodzinie.","Nieruchomości":"Transakcje, umowy i spory dotyczące nieruchomości komercyjnych i inwestycyjnych."};
+const slug=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/ł/g,"l").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+
+const $=s=>document.querySelector(s);
+const view=$("#view"),mega=$("#mega"),specBtn=$("#spec-btn"),drawer=$("#drawer"),burger=$("#burger");
+
+// mega menu columns (bez opisów obszarów)
+$("#mega-cols").innerHTML=AREAS.map(a=>`
+ <div class="col">
+  <h3><button data-go="area:${a.id}">${a.name}</button></h3>
+  <ul>${a.items.map(i=>`<li><button data-go="svc:${a.id}:${slug(i)}">${i}</button></li>`).join("")}</ul>
+  <button class="all" data-go="area:${a.id}">Dowiedz się więcej →</button>
+ </div>`).join("");
+
+// mobile drawer
+drawer.innerHTML=`
+ <button class="d-link" data-go="home">Strona główna</button>
+ <button class="d-link" data-go="o-kancelarii">O kancelarii</button>
+ <details><summary>Specjalizacje</summary>
+  ${AREAS.map(a=>`<details><summary>${a.name}</summary>
+    ${a.items.map(i=>`<button class="sub" data-go="svc:${a.id}:${slug(i)}">${i}</button>`).join("")}
+    <button class="sub" data-go="area:${a.id}"><u>Dowiedz się więcej</u></button>
+  </details>`).join("")}
+ </details>
+ <button class="d-link" data-go="zespol">Zespół</button>
+ <button class="d-link" data-go="baza-wiedzy">Baza wiedzy</button>
+ <button class="d-link" data-go="aktualnosci">Aktualności</button>
+ <button class="d-link" data-go="kontakt">Kontakt</button>
+ <button class="cta" data-go="umow">Umów się on-line</button>`;
+
+// mega open/close: click toggles, hover opens on desktop
+let closeT;
+function setMega(open){mega.hidden=!open;specBtn.setAttribute("aria-expanded",open)}
+specBtn.addEventListener("click",()=>setMega(mega.hidden));
+const canHover=matchMedia("(hover:hover)").matches;
+if(canHover){
+  [specBtn,mega].forEach(el=>{
+    el.addEventListener("mouseenter",()=>{clearTimeout(closeT);setMega(true)});
+    el.addEventListener("mouseleave",()=>{closeT=setTimeout(()=>setMega(false),180)});
+  });
+}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){setMega(false)}});
+document.addEventListener("click",e=>{if(!e.target.closest("#hdr"))setMega(false)});
+burger.addEventListener("click",()=>{const o=drawer.hidden;drawer.hidden=!o;burger.setAttribute("aria-expanded",o)});
+
+// routing
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-go]"); if(!b)return;
+  go(b.dataset.go);
+});
+function crumbs(list){return `<nav class="crumbs" aria-label="Okruszki">${list.map((c,i)=>(i<list.length-1&&c[1]?`<button data-go="${c[1]}">${c[0]}</button>`:`<span>${c[0]}</span>`)+(i<list.length-1?`<span>/</span>`:"")).join("")}</nav>`}
+const mail=m=>`<a class="u-link" href="mailto:${m}">${m}</a>`;
+const tel=t=>`<a class="u-link" href="tel:${t.replace(/[^+0-9]/g,"")}">${t}</a>`;
+const lines=n=>`<div class="lines">${"<i></i>".repeat(n)}</div>`;
+
+function go(r){
+  setMega(false);drawer.hidden=true;burger.setAttribute("aria-expanded",false);
+  document.querySelectorAll(".nav-link").forEach(n=>n.classList.remove("active"));
+  let html="";
+  if(r==="home"){
+    html=`<section class="hero"><div class="vid-label">Wideo w tle (pętla, bez dźwięku) · 100% szerokości</div><span class="play" aria-hidden="true"></span>
+      <div class="hero-in"><span class="tag">Strona główna</span><h1>Kancelaria dla biznesu, który chce działać spokojnie i z wyprzedzeniem</h1><p>Hasło przewodnie i krótki opis kancelarii.</p><button class="cta" data-go="umow">Umów się on-line</button></div></section>
+     <div class="section about"><div><span class="tag">O kancelarii</span><h2>Jak pracujemy</h2>
+       <p class="about-lead">KAOS to kancelaria dla przedsiębiorców, spółek i inwestorów, którzy chcą działać spokojnie i z wyprzedzeniem.</p>
+       <p>Prowadzimy <strong>transakcje i inwestycje</strong>, sprawy z zakresu <strong>rynku kapitałowego</strong>, <strong>spory i sytuacje kryzysowe</strong>, a także bieżącą <strong>obsługę spółek i ich majątku</strong>.</p>
+       <p>Zanim zaproponujemy rozwiązanie, <strong>poznajemy cele klienta, ryzyka i ludzi</strong>, którzy podejmują decyzje. Dzięki temu klient zawsze wie, na jakim etapie jest sprawa, i może spokojnie prowadzić swój biznes.</p>
+       <p>Każdą sprawą <strong>kieruje partner</strong>, który zna ją od pierwszego spotkania. Mówimy wprost o ryzykach, kosztach i możliwych scenariuszach, a <strong>rekomendację dajemy zawsze konkretną</strong>: co zrobić, kiedy i dlaczego.</p>
+       <button class="btn-outline" data-go="o-kancelarii">Dowiedz się więcej o kancelarii</button></div>
+      <div class="ph about-photo">Zdjęcie (zespół / biuro / spotkanie z klientem)</div></div>`+homeExtra();
+  } else if(r==="specjalizacje"){
+    html=crumbs([["Strona główna","home"],["Specjalizacje"]])+`<h1>Specjalizacje</h1><p class="intro">Przegląd czterech obszarów.</p>
+     <div class="grid">${AREAS.map(a=>`<button class="card" data-go="area:${a.id}"><h3>${a.name}</h3><ul>${a.items.map(i=>`<li>${i}</li>`).join("")}</ul></button>`).join("")}</div>`;
+  } else if(r.startsWith("area:")){
+    const a=AREAS.find(x=>x.id===r.slice(5))||AREAS[0];specBtn.classList.add("active");
+    html=`<section class="subhero"><div class="subhero-in">${crumbs([["Strona główna","home"],["Specjalizacje"],[a.name]])}<h1>${a.name}</h1><p>${a.lead}. Krótki opis obszaru: dla kogo jest i z jakimi sprawami przychodzą do nas klienci.</p></div><span class="subhero-label">Zdjęcie w tle (opcjonalnie)</span></section>
+     <section class="section"><div class="sec-head"><h2>Usługi w tym obszarze</h2></div>
+      <div class="svc-tiles${a.items.length===2?" two":""}">${a.items.map((it,k)=>`<button class="svc-tile" data-go="svc:${a.id}:${slug(it)}"><div class="ph svc-art">Grafika</div><span class="num">0${k+1}</span><h3>${it}</h3><p>${SVC_DESC[it]||""}</p><span class="svc-go">Zobacz usługę →</span></button>`).join("")}</div></section>`;
+  } else if(r.startsWith("svc:")){
+    const [,aid,sid]=r.split(":");const a=AREAS.find(x=>x.id===aid)||AREAS[0];const name=a.items.find(i=>slug(i)===sid)||a.items[0];specBtn.classList.add("active");
+    html=svcView(a,name);
+  } else if(r==="zespol"){
+    document.querySelector('.nav-link[data-go="zespol"]').classList.add("active");
+    html=`<section class="subhero"><div class="subhero-in">${crumbs([["Strona główna","home"],["Zespół"]])}<h1>Zespół</h1><p>Partnerzy i prawnicy kancelarii. Każda osoba z krótkim bio i przypisaniem do obszarów specjalizacji.</p></div><span class="subhero-label">Zdjęcie w tle (opcjonalnie)</span></section>
+     <div class="team team-all">${TEAM.map(personCard).join("")}</div>`;
+  } else if(r.startsWith("person:")){
+    document.querySelector('.nav-link[data-go="zespol"]').classList.add("active");
+    html=personView(TEAM[+r.slice(7)]||TEAM[0]);
+  } else if(r==="umow"){
+    html=bookView();
+  } else if(r.startsWith("book:")){
+    html=bookingView(r.slice(5));
+  } else if(r==="o-kancelarii"){
+    document.querySelector('.nav-link[data-go="o-kancelarii"]').classList.add("active");
+    html=aboutView();
+  } else if(r==="404"){
+    html=notFoundView();
+  } else if(r==="kontakt"){
+    document.querySelector('.nav-link[data-go="kontakt"]').classList.add("active");
+    html=contactView();
+  } else if(r.startsWith("txt:")){
+    html=textPage(TEXT_PAGES[r.slice(4)]);
+  } else if(r==="post"||r==="kb-post"){
+    FEED=r==="post"?"aktualnosci":"baza-wiedzy";curArticle=r==="post"?ARTICLE:KB_ARTICLE;
+    document.querySelector(`.nav-link[data-go="${FEED}"]`).classList.add("active");
+    html=postView(curArticle,FEED);
+  } else if(r==="aktualnosci"||r==="baza-wiedzy"){
+    FEED=r;document.querySelector(`.nav-link[data-go="${r}"]`).classList.add("active");
+    html=listView(r);
+  } else if(SIMPLE[r]){
+    const p=SIMPLE[r];const nb=document.querySelector(`.nav-link[data-go="${r}"]`);if(nb)nb.classList.add("active");
+    html=crumbs([["Strona główna","home"],[p.name]])+`<h1>${p.name}</h1><p class="intro">${p.intro}</p>`+
+     (p.grid?`<div class="grid">${p.grid.map(g=>`<div class="card" style="cursor:default"><div class="ph" style="height:110px">Zdjęcie</div><h3>${g}</h3></div>`).join("")}</div>`
+            :`<div class="grid">${p.blocks.map(b=>`<div class="ph" style="height:130px">${b}</div>`).join("")}</div>`+lines(5));
+  } else {
+    html=notFoundView();
+  }
+  view.innerHTML=html;if(r==="home")initHome();if(r==="aktualnosci"||r==="baza-wiedzy")renderNews();if(r==="post"||r==="kb-post")renderPostCats();if(r==="kontakt")initContact();syncCookie(r);if(r.startsWith("svc:")){sqSync();const f=document.getElementById("cform");if(f)f.addEventListener("submit",e=>{e.preventDefault();document.getElementById("sent").hidden=false})}if(r==="o-kancelarii")gcSync();if(r.startsWith("book:"))renderCal();window.scrollTo(0,0);
+}
+
+// zespół: osoby z broszury kancelarii (Rynki kapitałowe i prawo gospodarcze)
+const TEAM=[
+ {name:"Adam Osiński",role:"Adwokat, Partner",mail:"aosinski@kaos.pl",tel:"+48 602 180 828",
+  bio:["Adwokat i partner w KAOS, członek Izby Adwokackiej w Warszawie. Specjalizuje się w prawie rynku kapitałowego oraz w szeroko pojętym prawie cywilnym i gospodarczym. Doradza polskim i zagranicznym spółkom w procesach fuzji i przejęć.",
+   "Przez sześć lat był prezesem zarządu EBC Solicitors S.A., jednego z największych Autoryzowanych Doradców rynku NewConnect pod względem liczby wprowadzonych spółek. Brał udział w przygotowaniu debiutów kilkudziesięciu spółek.",
+   "Jest członkiem Rady Autoryzowanych Doradców NewConnect, organu doradczego Zarządu Giełdy Papierów Wartościowych w Warszawie, a także współzałożycielem i współwłaścicielem platformy crowdfundingowej FindFunds.pl."],
+  edu:"Wydział Prawa i Administracji Uniwersytetu Jagiellońskiego w Krakowie",lang:"angielski",
+  spec:[["Restrukturyzacja i łączenie spółek, także giełdowych",1,2],["Emisje akcji, także spółek publicznych",0,1],["Wprowadzanie spółek na NewConnect",0,0],["Obsługa nabycia spółek, także giełdowych",1,1],["Publiczne oferty papierów wartościowych",0,0],["Likwidacja spółek handlowych",2,0],["Przedsięwzięcia crowdfundingowe",0,-1]]},
+ {name:"Przemysław Perka",role:"Adwokat, Doradca restrukturyzacyjny, Partner",mail:"pperka@kaos.pl",tel:"+48 668 540 755"},
+ {name:"Daniel Szeląg",role:"Adwokat, Senior Associate",extra:"Certyfikowany Doradca w ASO"},
+ {name:"Kinga Skonieczna",role:"Adwokat, Senior Associate"},
+ {name:"Aleksandra Siarka",role:"Adwokat, Senior Associate"},
+ {name:"Bartosz Żuchowski",role:"Adwokat, Senior Associate"}
+];
+const personCard=(t,i)=>`<button class="card person" data-go="person:${i}" style="padding:0;border:0;background:none"><div class="ph">Zdjęcie</div><h3>${t.name}</h3><p>${t.role}</p>${t.extra?`<p>${t.extra}</p>`:""}</button>`;
+// aktualności: kategorie (do podmiany), wpisy przykładowe, filtr + paginacja
+const CATS=["Rynek nieruchomości","Własność intelektualna","Prawo spółek","Postępowania sądowe i arbitrażowe","German Desk","Audyt i wdrożenie RODO","Rynek kapitałowy","Fuzje i przejęcia","Dochodzenie wierzytelności w Polsce i na terenie UE","Kryptowaluty","Prawo podatkowe","Prawo upadłościowe i restrukturyzacyjne"];
+const POST_TITLES=["Zmiany w obowiązkach informacyjnych spółek publicznych","Odpowiedzialność członków zarządu za zobowiązania spółki","Sukcesja w firmie rodzinnej: od czego zacząć","Emisja obligacji krok po kroku","Restrukturyzacja zamiast upadłości: kiedy to możliwe","Jak przygotować spółkę na spór wspólników","Due diligence przed wejściem inwestora","Fundacja rodzinna po dwóch latach: pierwsze wnioski","Nowe zasady raportowania ESG dla emitentów","Zabezpieczenie roszczeń w sporach o instrumenty finansowe","Umowa inwestycyjna: klauzule, o których się zapomina","Przekształcenie spółki osobowej w kapitałową","KAOS doradcą przy debiucie na NewConnect","Odpowiedzialność karna menadżerów: najczęstsze ryzyka","ASI jako narzędzie inwestycyjne","Zakup nieruchomości komercyjnej: lista kontrolna","Układ z wierzycielami w praktyce","Konferencja: prawo rynku kapitałowego 2026","Walne zgromadzenie bez niespodzianek","Połączenie spółek a prawa pracowników","Kiedy warto sięgnąć po mediację gospodarczą","Ochrona majątku przed ryzykiem biznesowym"];
+const POSTS=POST_TITLES.map((t,i)=>{const d=new Date(2026,9,20-i*4);return{t,cat:CATS[i%CATS.length],date:d.toLocaleDateString("pl-PL",{day:"2-digit",month:"2-digit",year:"numeric"})}});
+const PER_PAGE=9;
+// karta wpisu: kategoria jako pastylka na miniaturze (długie nazwy ucinane wielokropkiem)
+const postCard=p=>`<article class="post"><button class="post-btn" data-go="${p.go||"post"}"><div class="thumb-wrap"><div class="ph post-thumb">Miniatura</div><span class="thumb-pill" title="${p.cat}">${p.cat}</span></div><span class="tag">${p.date}</span><h3>${p.t}</h3></button></article>`;
+const newsState={cat:"Wszystkie",page:1};
+function renderNews(){
+  const box=document.getElementById("news-list");if(!box)return;
+  const F=FEEDS[FEED],newsState=F.state;
+  const list=newsState.cat==="Wszystkie"?F.posts:F.posts.filter(p=>p.cat===newsState.cat);
+  const pages=Math.max(1,Math.ceil(list.length/PER_PAGE));newsState.page=Math.min(newsState.page,pages);
+  const slice=list.slice((newsState.page-1)*PER_PAGE,newsState.page*PER_PAGE);
+  box.innerHTML=(slice.length?`<div class="posts">${slice.map(postCard).join("")}</div>`:`<p class="intro">Brak wpisów w tej kategorii.</p>`)+
+   (pages>1?`<nav class="pager" aria-label="Paginacja"><button class="arrow" data-page="${newsState.page-1}" ${newsState.page===1?"disabled":""} aria-label="Poprzednia strona">←</button>${Array.from({length:pages},(_,i)=>`<button class="pg" data-page="${i+1}" ${i+1===newsState.page?'aria-current="page"':""}>${i+1}</button>`).join("")}<button class="arrow" data-page="${newsState.page+1}" ${newsState.page===pages?"disabled":""} aria-label="Następna strona">→</button></nav>`:"");
+}
+document.addEventListener("click",e=>{
+  const c=e.target.closest("[data-cat]");
+  const newsState=FEEDS[FEED].state;
+  if(c){newsState.cat=c.dataset.cat;newsState.page=1;document.querySelectorAll("[data-cat]").forEach(b=>b.setAttribute("aria-pressed",b===c));renderNews();return}
+  const p=e.target.closest("[data-page]");
+  if(p&&!p.disabled){newsState.page=+p.dataset.page;renderNews();document.querySelector(".pills-head").scrollIntoView({block:"start",behavior:"smooth"})}
+});
+
+// pojedynczy wpis: treść przykładowa (do podmiany na tekst z kaos.pl), 1–3 kategorie do podglądu
+const ARTICLE={
+ t:"Wycofanie akcji z KDPW: kiedy wybrać rejestr akcjonariuszy?",date:"20.10.2026",
+ cats:["Rynek kapitałowy","Prawo spółek","Fuzje i przejęcia"],
+ author:TEAM[0],note:"Treść przykładowa: do podmiany na oryginalny tekst wpisu z kaos.pl/aktualnosci.",
+ cta:["Planujesz wycofanie akcji z KDPW?","Umów konsultację. Pomożemy wybrać między rejestrem a depozytem i przeprowadzimy zmianę krok po kroku."],
+ body:`   <p class="lead">Gdy akcje spółki przestają być zarejestrowane w KDPW, zarząd musi zdecydować, gdzie będą dalej ewidencjonowane. Od tego wyboru zależą koszty, sposób zbywania akcji i obowiązki wobec akcjonariuszy.</p>
+   <h2>Kiedy akcje są wycofywane z KDPW</h2>
+   <p>Najczęściej dzieje się tak po wycofaniu akcji z obrotu, na przykład po zejściu z NewConnect lub z rynku regulowanego. Akcje przestają wtedy być zdematerializowane w depozycie, ale nadal nie wracają do formy papierowej.</p>
+   <p>Spółka musi więc wskazać nowe miejsce ich ewidencji i przeprowadzić zmianę tak, aby akcjonariusze nie stracili możliwości wykonywania swoich praw.</p>
+   <h2>Czym jest rejestr akcjonariuszy</h2>
+   <p>Rejestr akcjonariuszy to elektroniczna ewidencja akcji spółek niepublicznych. Prowadzi go podmiot uprawniony do prowadzenia rachunków papierów wartościowych, na przykład dom maklerski, wybrany uchwałą walnego zgromadzenia.</p>
+   <figure><div class="ph">Zdjęcie ilustracyjne w treści wpisu (3:2)</div><figcaption>Podpis pod zdjęciem (opcjonalny).</figcaption></figure>
+   <h2>Rejestr czy depozyt: co wybrać</h2>
+   <ul>
+    <li><strong>Rejestr akcjonariuszy</strong> sprawdza się, gdy spółka nie planuje szybkiego powrotu do obrotu, a akcjonariuszy jest niewielu.</li>
+    <li><strong>Depozyt w KDPW</strong> warto rozważyć, gdy spółka przygotowuje kolejne emisje lub planuje powrót na rynek.</li>
+    <li>W obu przypadkach liczą się koszty prowadzenia ewidencji i to, jak często akcje zmieniają właściciela.</li>
+   </ul>
+   <h2>Jak przeprowadzić zmianę krok po kroku</h2>
+   <ol>
+    <li>Uchwała walnego zgromadzenia o wyborze podmiotu prowadzącego rejestr.</li>
+    <li>Umowa z wybranym podmiotem i przekazanie danych akcjonariuszy.</li>
+    <li>Ewentualna zmiana statutu spółki.</li>
+    <li>Poinformowanie akcjonariuszy o nowym sposobie ewidencji akcji.</li>
+   </ol>
+`,
+ faq:["Ile trwa wycofanie akcji z KDPW?","Czy akcjonariusze muszą coś zrobić po zmianie?","Ile kosztuje prowadzenie rejestru akcjonariuszy?","Czy spółka może później wrócić do depozytu?"]
+};
+const postState={n:3};let curArticle=ARTICLE;
+function renderPostCats(){
+ const box=document.getElementById("post-cats");if(!box)return;
+ box.innerHTML=curArticle.cats.slice(0,postState.n).map(c=>`<button class="cat-pill" data-go="${FEED}">${c}</button>`).join("");
+ document.querySelectorAll("[data-ncat]").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.ncat===postState.n));
+}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-ncat]");if(b){postState.n=+b.dataset.ncat;renderPostCats()}});
+const KB_POSTS=[{t:"Mediacja w sporze gospodarczym – kiedy może być korzystniejsza od procesu?",date:"23.10.2026",cat:"Spory i procesy",go:"kb-post"},{t:"AI w umowach – czy można powierzyć sztucznej inteligencji analizę kontraktu?",date:"14.10.2026",cat:"AI i nowe technologie",go:"kb-post"},{t:"NIS2 w Polsce – odpowiedzialność zarządu i nowe obowiązki dla przedsiębiorców. Co musisz zrobić w 2026 roku?",date:"22.09.2026",cat:"Regulacje UE",go:"kb-post"},{t:"Czy potajemne nagranie może stanowić dowód w sądzie?",date:"21.09.2026",cat:"Spory i procesy",go:"kb-post"},{t:"Czy treść stworzona przez AI jest utworem w rozumieniu prawa autorskiego?",date:"21.08.2026",cat:"AI i nowe technologie",go:"kb-post"},{t:"PPWR, czyli nowe „prawo opakowań” w UE",date:"05.08.2026",cat:"Regulacje UE",go:"kb-post"},{t:"Jak wygląda proces gospodarczy w 2026 roku? Przewodnik dla przedsiębiorcy",date:"28.07.2026",cat:"Spory i procesy",go:"kb-post"},{t:"Wykorzystanie wizerunku i głosu przez AI. Jak chronić firmę przed tzw. oszustwami „deepfake”?",date:"30.06.2026",cat:"AI i nowe technologie",go:"kb-post"},{t:"AI Act w praktyce. Kogo dotyczą nowe przepisy i jakie obowiązki nakładają na przedsiębiorców?",date:"19.06.2026",cat:"Regulacje UE",go:"kb-post"},{t:"Jawność wynagrodzeń w Polsce i UE – co się zmienia?",date:"09.06.2026",cat:"Prawo pracy",go:"kb-post"},{t:"Czy PIP będzie mogła zamienić umowę B2B lub umowę zlecenia w umowę o pracę?",date:"27.05.2026",cat:"Prawo pracy",go:"kb-post"},{t:"Kiedy umowa przestaje Cię chronić? 6 najczęstszych błędów przedsiębiorców",date:"28.04.2026",cat:"Umowy",go:"kb-post"},{t:"Czy AI może pisać dokumenty prawne dla Twojej firmy? Ryzyka, o których nikt nie mówi",date:"31.03.2026",cat:"AI i nowe technologie",go:"kb-post"},{t:"Gdy „pewne zyski” okazują się oszustwem – typowe schematy inwestycyjne w praktyce karnej",date:"26.02.2026",cat:"Prawo karne gospodarcze",go:"kb-post"},{t:"Odpowiedzialność karna za decyzje inwestycyjne – błędna strategia czy przestępstwo?",date:"11.02.2026",cat:"Prawo karne gospodarcze",go:"kb-post"},{t:"Karuzela VAT w praktyce – jak przedsiębiorca może nieświadomie stać się podejrzanym?",date:"27.01.2026",cat:"Prawo karne gospodarcze",go:"kb-post"},{t:"Zabezpieczenie majątkowe w postępowaniu karnym – jak prokuratura może zablokować działalność przedsiębiorcy?",date:"22.01.2026",cat:"Prawo karne gospodarcze",go:"kb-post"},{t:"Prezes „na papierze”? Odpowiedzialność karna członków zarządu spółki z o.o. i S.A. – ryzyko, o którym nikt nie mówi",date:"07.01.2026",cat:"Prawo karne gospodarcze",go:"kb-post"},{t:"Oszustwo gospodarcze a niewykonanie umowy – kiedy spór cywilny może przerodzić się w sprawę karną?",date:"30.12.2025",cat:"Spory i procesy",go:"kb-post"},{t:"Tymczasowe aresztowanie prezesa zarządu HREIT oraz największego wspólnika spółek z grupy kapitałowej HRE. Co to oznacza dla pokrzywdzonych?",date:"23.09.2025",cat:"Ochrona inwestorów",go:"kb-post"},{t:"Afera HREIT – co robimy dla poszkodowanych inwestorów?",date:"26.08.2025",cat:"Ochrona inwestorów",go:"kb-post"},{t:"Uważaj, w co inwestujesz. Jak rozpoznać nielegalny schemat lub piramidę finansową?",date:"25.08.2025",cat:"Ochrona inwestorów",go:"kb-post"},{t:"Przedsiębiorco! 15 lipca mija termin na złożenie sprawozdania finansowego za rok 2024",date:"10.07.2025",cat:"Prawo spółek",go:"kb-post"},{t:"Odpowiedzialność managerów za wprowadzanie w błąd inwestorów – aspekty karne i możliwości odzyskania środków",date:"25.06.2025",cat:"Ochrona inwestorów",go:"kb-post"},{t:"Model biznesowy HRE Investments: analiza ryzyka",date:"18.06.2025",cat:"Ochrona inwestorów",go:"kb-post"}];
+const KB_CATS=[...new Set(KB_POSTS.map(p=>p.cat))];
+const KB_ARTICLE={t:"Prezes „na papierze”? Odpowiedzialność karna członków zarządu spółki z o.o. i S.A. – ryzyko, o którym nikt nie mówi",date:"07.01.2026",
+ cats:["Prawo karne gospodarcze","Prawo spółek"],author:TEAM[4],note:"Treść przykładowa na bazie wpisu z lexfocus.pl (skrócona). Przy migracji zostanie zastąpiona pełnym oryginałem.",
+ cta:["Zasiadasz w zarządzie i chcesz ocenić swoje ryzyko?","Umów konsultację z prawnikiem od prawa karnego gospodarczego. Przejrzymy sytuację spółki i powiemy, co możesz zrobić już teraz."],
+ body:`<p class="lead">Objęcie funkcji prezesa zarządu spółki z ograniczoną odpowiedzialnością albo spółki akcyjnej bywa postrzegane jako prestiżowe wyróżnienie, czasem wręcz formalność. To jednak realna, osobista odpowiedzialność, także karna.</p>
+   <h2>Kto faktycznie odpowiada za spółkę?</h2>
+   <p>Z punktu widzenia prawa karnego liczy się to, kto formalnie pełni funkcję w zarządzie. To osoba, która podpisuje dokumenty i reprezentuje spółkę, w pierwszej kolejności odpowiada za jej działania.</p>
+   <h2>„Słup” w zarządzie – mit bezkarności</h2>
+   <p>W praktyce kancelarii coraz częściej spotykamy się z sytuacjami, w których funkcję prezesa zarządu powierza się osobom bez realnego wpływu na spółkę. Brak wiedzy o tym, co dzieje się w firmie, nie chroni przed zarzutami.</p>
+   <figure><div class="ph">Zdjęcie ilustracyjne w treści wpisu (3:2)</div><figcaption>Podpis pod zdjęciem (opcjonalny).</figcaption></figure>
+   <h2>Sprawa z praktyki kancelarii: groziło 8 lat więzienia, skończyło się uniewinnieniem</h2>
+   <p>Wspólnie z adwokatem Bartoszem Żuchowskim reprezentowaliśmy klientkę, która na prośbę członków rodziny zgodziła się objąć funkcję prezesa spółki z o.o. Postępowanie zakończyło się uniewinnieniem.</p>
+   <h2>Statystyki wyroków w sprawach karnych – uniewinnienia stanowią margines</h2>
+   <p>Z dostępnych statystyk i praktyki sądowej wynika, że zaledwie około 2% wyroków w sprawach karnych to uniewinnienia. Dlatego tak ważna jest obrona od pierwszego etapu postępowania.</p>
+   <h2>Podsumowanie</h2>
+   <p>Niezależnie od narracji, zapewnień i relacji rodzinnych to prezes lub członek zarządu odpowiada za spółkę i to on jest pierwszym adresatem zarzutów karnych.</p>`,
+ faq:["Czy członek zarządu odpowiada karnie, jeśli nie prowadził spraw spółki?","Jak ograniczyć ryzyko przed objęciem funkcji w zarządzie?","Co zrobić po otrzymaniu wezwania na przesłuchanie?"]};
+let FEED="aktualnosci";
+const FEEDS={
+ "aktualnosci":{name:"Aktualności",intro:"Komentarze do zmian w prawie, sukcesy kancelarii i wydarzenia.",posts:POSTS,cats:CATS,state:{cat:"Wszystkie",page:1}},
+ "baza-wiedzy":{name:"Baza wiedzy",intro:"Artykuły eksperckie i poradniki: prawo karne gospodarcze, spory, AI i nowe regulacje dla przedsiębiorców.",posts:KB_POSTS,cats:KB_CATS,state:{cat:"Wszystkie",page:1}}};
+function listView(key){const F=FEEDS[key];
+ return `<section class="subhero"><div class="subhero-in">${crumbs([["Strona główna","home"],[F.name]])}<h1>${F.name}</h1><p>${F.intro}</p></div><span class="subhero-label">Zdjęcie w tle (opcjonalnie)</span></section>
+     <h2 class="pills-head" id="pills-head">Przeglądaj wpisy po kategorii</h2>
+     <div class="pills" role="group" aria-labelledby="pills-head">${["Wszystkie",...F.cats].map(c=>`<button class="pill" data-cat="${c}" aria-pressed="${c===F.state.cat}">${c}</button>`).join("")}</div>
+     <div id="news-list"></div>
+     ${newsletterBlock()}`}
+function newsletterBlock(){return `<section class="newsletter"><div><h2>Newsletter kancelarii</h2><p>Komentarze do zmian w prawie prosto na skrzynkę. Bez spamu.</p></div>
+   <form class="nl-form" onsubmit="event.preventDefault();this.querySelector('button').textContent='Zapisano (makieta)'"><label class="sr" for="nl-mail" style="position:absolute;left:-9999px">E-mail</label><input id="nl-mail" type="email" placeholder="Twój adres e-mail"><button type="submit">Zapisz się</button></form>
+   <p class="nl-consent">Poprzez weryfikację adresu email wyrażam zgodę na przetwarzanie moich danych osobowych przez Kancelarię Adwokacką Osiński sp. k. z siedzibą w Warszawie (dalej: KAOS), ul. Jana i Jędrzeja Śniadeckich 17, 00-654 Warszawa, wpisaną do Rejestru Przedsiębiorców przez Sąd Rejonowy dla m.st. Warszawy w Warszawie, XII Wydział Gospodarczy Krajowego Rejestru Sądowego pod numerem 0000581446 w celu otrzymywania newslettera KAOS, wiadomości zawierających informacje o charakterze handlowym pochodzących od KAOS, jak również informacje o świadczonych usługach i projektach prowadzonych przez KAOS, zgodnie z Rozporządzeniem Parlamentu Europejskiego i Rady (UE) 2016/679 z dnia 27 kwietnia 2016 r. w sprawie ochrony osób fizycznych w związku z przetwarzaniem danych osobowych i w sprawie swobodnego przepływu takich danych oraz uchylenia dyrektywy 95/46/WE i w tym celu wyrażam zgodę na otrzymywanie informacji handlowej na mój adres poczty elektronicznej (zgodnie z ustawą o świadczeniu usług drogą elektroniczną z dnia 18 lipca 2002; Dz.U. 2017 poz. 1219).</p></section>`}
+function postView(a,key){
+ const F=FEEDS[key];
+ return `<section class="subhero post-hero"><div class="subhero-in">${crumbs([["Strona główna","home"],[F.name,key],[a.t]])}<h1>${a.t}</h1>
+   <div class="post-meta"><time>${a.date}</time><span class="sep" aria-hidden="true"></span><div class="cat-pills" id="post-cats"></div></div></div>
+   <span class="subhero-label">Zdjęcie w tle (opcjonalnie)</span></section>
+  <article class="article">
+   <p class="sample-note">${a.note}</p>
+   <div class="ph post-cover">Miniatura wpisu</div>
+   ${a.body}
+   <section class="faq" aria-labelledby="faq-h"><h2 id="faq-h">Najczęściej zadawane pytania</h2>
+    ${a.faq.map((q,i)=>`<details${i===0?" open":""}><summary>${q}</summary><p>Krótka odpowiedź na pytanie, 2–4 zdania. Treść do uzupełnienia przez kancelarię.</p></details>`).join("")}
+   </section>
+   <div class="author"><div class="ph">Foto</div><div><span>Autor wpisu</span><b>${a.author.name}</b><span>${a.author.role}</span></div></div>
+   <aside class="post-cta"><div><span class="tag">Umów konsultację</span><h2>${a.cta[0]}</h2><p>${a.cta[1]}</p></div><button class="cta" data-go="umow">Umów spotkanie on-line</button></aside>
+  </article>
+  <section class="section"><div class="sec-head"><h2>Powiązane wpisy</h2><button class="more" data-go="${key}">Wszystkie wpisy →</button></div>
+   <div class="posts">${F.posts.slice(1,4).map(postCard).join("")}</div></section>
+  ${newsletterBlock()}`;
+}
+// strona członka zespołu: bio, zdjęcie, LinkedIn, specjalizacje, wpisy autora
+const LI_ICON=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.5c0-1.31-.02-3-1.83-3-1.83 0-2.11 1.43-2.11 2.9V21H9z"/></svg>`;
+function personView(t){
+ const bio=t.bio||["Krótkie bio: doświadczenie, kluczowe sprawy i transakcje, sposób pracy z klientem.","Drugi akapit bio (do uzupełnienia na podstawie strony kaos.pl/zespol)."];
+ const spec=t.spec||AREAS[0].items.map((n,i)=>[n,0,i]);
+ const route=([,a,i])=>i<0?"area:"+AREAS[a].id:"svc:"+AREAS[a].id+":"+slug(AREAS[a].items[i]);
+ return crumbs([["Strona główna","home"],["Zespół","zespol"],[t.name]])+`
+  <section class="bio"><div>
+   <span class="tag">Zespół</span><h1>${t.name}</h1><p class="role">${t.role}${t.extra?` · ${t.extra}`:""}</p>
+   <div class="bio-text">${bio.map(b=>`<p>${b}</p>`).join("")}</div>
+   <dl class="bio-facts">${t.edu?`<dt>Wykształcenie</dt><dd>${t.edu}</dd>`:""}${t.lang?`<dt>Języki</dt><dd>${t.lang}</dd>`:""}<dt>E-mail</dt><dd>${mail(t.mail||"imie.nazwisko@kaos.pl")}</dd><dt>Telefon</dt><dd>${tel(t.tel||"+48 22 622 03 85")}</dd></dl>
+   <div class="bio-actions"><span class="li-btn" title="Link do profilu LinkedIn (adres do uzupełnienia)">${LI_ICON}Profil na LinkedIn</span><button class="cta" data-go="umow">Umów się on-line</button></div>
+  </div><div class="ph bio-photo">Duże zdjęcie (portret, 4:5)</div></section>
+  <section class="section"><div class="sec-head"><h2>Specjalizacje</h2></div>
+   <div class="areas person-areas">${spec.map((x,i)=>`<button class="area-tile" data-go="${route(x)}"><span class="num">${String(i+1).padStart(2,"0")}</span><h3>${x[0]}</h3></button>`).join("")}</div></section>`;
+}
+
+// strony tekstowe: treść skrócona na podstawie kaos.pl, do podmiany na pełny tekst
+const TEXT_PAGES={
+ "polityka-prywatnosci":{name:"Polityka prywatności",intro:"Zasady przetwarzania danych osobowych przez Kancelarię Adwokacką Osiński sp.k.",src:"kaos.pl/zasady-prywatnosci",secs:[
+  ["Administrator danych",["Administratorem danych osobowych jest Kancelaria Adwokacka Osiński sp.k. (KAOS) z siedzibą w Warszawie, ul. Jana i Jędrzeja Śniadeckich 17, 00-654 Warszawa. Administrator nie przetwarza danych w sposób zautomatyzowany, w tym nie stosuje profilowania."]],
+  ["Zakres przetwarzanych danych",["Przetwarzamy imiona i nazwiska osób reprezentujących, adresy e-mail, numery telefonów oraz inne dane z dokumentów niezbędnych do świadczenia pomocy prawnej."]],
+  ["Cele i podstawy prawne przetwarzania",["Dane przetwarzamy w celu:"],["zawarcia i wykonania umowy (art. 6 ust. 1 lit. b RODO),","wypełnienia obowiązków prawnych (art. 6 ust. 1 lit. c RODO),","realizacji prawnie uzasadnionych interesów, m.in. ustalania warunków umowy i ułatwienia komunikacji (art. 6 ust. 1 lit. f RODO),","marketingu, w tym wysyłki newslettera i informacji o usługach."]],
+  ["Odbiorcy danych",["Dane mogą być przekazywane współpracującym adwokatom i notariuszom, sądom i organom, gdy wymagają tego przepisy, a także dostawcom usług księgowych, pocztowych, kurierskich i IT. Co do zasady dane nie są przekazywane poza Europejski Obszar Gospodarczy."]],
+  ["Okres przechowywania",["Dane przechowujemy do czasu zakończenia umowy, wniesienia sprzeciwu lub cofnięcia zgody, a następnie przez okres przedawnienia roszczeń."]],
+  ["Prawa osób, których dane dotyczą",["Przysługuje Ci prawo dostępu do danych, ich sprostowania, usunięcia, ograniczenia przetwarzania, przenoszenia, sprzeciwu oraz cofnięcia zgody, a także prawo wniesienia skargi do Prezesa Urzędu Ochrony Danych Osobowych."]],
+  ["Dobrowolność podania danych",["Podanie danych jest dobrowolne, ale niezbędne do zawarcia i wykonania umowy. Jeśli obowiązek wynika z przepisów, podanie danych jest wymogiem ustawowym."]],
+  ["Marketing i newsletter",["Zgoda na marketing jest dobrowolna. Z newslettera można zrezygnować w każdej chwili, korzystając z linku w wiadomości lub kontaktując się z kancelarią."]],
+  ["Bezpieczeństwo danych",["Stosujemy szyfrowanie, ograniczamy dostęp do danych do upoważnionych osób oraz utrzymujemy fizyczne, elektroniczne i proceduralne środki ochrony."]]]},
+ "polityka-cookies":{name:"Polityka cookies",intro:"Informacje o plikach cookies wykorzystywanych na stronie kaos.pl.",src:"brak osobnej strony na obecnym kaos.pl; treść do przygotowania",secs:[
+  ["Czym są pliki cookies",["Treść do uzupełnienia."]],["Jakich plików cookies używamy",["Treść do uzupełnienia: niezbędne, analityczne (Google Analytics), funkcjonalne."]],
+  ["Zarządzanie zgodą",["Treść do uzupełnienia: baner GDPR Cookies i zmiana ustawień zgody."]],["Ustawienia przeglądarki",["Treść do uzupełnienia."]],["Kontakt",["Treść do uzupełnienia."]]]},
+ "zasady":{name:"Zasady korzystania ze strony internetowej",intro:"Warunki korzystania ze strony internetowej kancelarii KAOS.",src:"kaos.pl/zasady-korzystania-ze-strony-internetowej",secs:[
+  ["Postanowienia ogólne",["Korzystanie ze strony oznacza akceptację niniejszych zasad. Osoby, które ich nie akceptują, nie mogą korzystać ze strony KAOS i powinny natychmiast ją opuścić."]],
+  ["Zakazane treści",["Użytkownik nie może zamieszczać treści obscenicznych, wprowadzających w błąd, obraźliwych, niezgodnych z prawem, naruszających prawa własności intelektualnej ani mogących uszkodzić systemy. Odpowiada za szkody i roszczenia osób trzecich wynikające z naruszenia tych zasad."]],
+  ["Dane osobowe",["Użytkownik odpowiada za prawdziwość przekazanych danych i musi być uprawniony do ich udostępnienia. Pytania dotyczące danych można kierować do kancelarii pocztą elektroniczną."]],
+  ["Własność intelektualna",["Treści na stronie, w tym kod źródłowy HTML, należą do KAOS. Wolno je wyłącznie przeglądać lub drukować w celu zapoznania się z nimi."]],
+  ["Linki i strony osób trzecich",["Umieszczenie linku do strony wymaga uprzedniej pisemnej zgody KAOS. Kancelaria nie odpowiada za treść stron osób trzecich."]],
+  ["Odpowiedzialność",["KAOS nie ponosi odpowiedzialności za stronę i sposób korzystania z niej, z wyjątkiem przypadków wyraźnie wskazanych lub wynikających z przepisów prawa."]],
+  ["Prawo właściwe",["Zastosowanie ma prawo polskie, a spory rozstrzygają wyłącznie sądy polskie."]]]}
+};
+function textPage(t){
+ const id=i=>"sec-"+(i+1);
+ return `<section class="subhero"><div class="subhero-in">${crumbs([["Strona główna","home"],[t.name]])}<h1>${t.name}</h1><p>${t.intro}</p></div><span class="subhero-label">Zdjęcie w tle (opcjonalnie)</span></section>
+  <div class="legal"><div class="legal-body"><p class="sample-note">Treść skrócona (źródło: ${t.src}). Do podmiany na pełny tekst dokumentu.</p>
+   ${t.secs.map((x,i)=>`<h2 id="${id(i)}">${i+1}. ${x[0]}</h2>${x[1].map(q=>`<p>${q}</p>`).join("")}${x[2]?`<ul>${x[2].map(l=>`<li>${l}</li>`).join("")}</ul>`:""}`).join("")}
+   <p class="legal-updated">Ostatnia aktualizacja: dd.mm.rrrr</p></div></div>`;
+}
+
+// kontakt: dane z kaos.pl/kontakt pogrupowane, formularz, mapa, FAQ, CTA do umawiania
+const CONTACT_FAQ=[
+ ["Jak szybko dostanę odpowiedź?","Na wiadomości z formularza i e-maile odpowiadamy w ciągu jednego dnia roboczego."],
+ ["Czy mogę od razu umówić się na spotkanie online?","Tak. W umawiarce spotkań wybierasz rodzaj spotkania i wolny termin, a potwierdzenie z linkiem do rozmowy dostajesz e-mailem."],
+ ["Czy pierwsza konsultacja jest płatna?","Odpowiedź do uzupełnienia przez kancelarię."],
+ ["Jak przygotować się do pierwszego spotkania?","Odpowiedź do uzupełnienia: jakie dokumenty warto mieć pod ręką."],
+ ["Czy mogę przyjść do biura bez umawiania?","Odpowiedź do uzupełnienia przez kancelarię."]
+];
+function contactView(){
+ const f=(id,label,type,req,full,tag)=>`<label class="field${full?" full":""}" for="${id}"><span>${label} ${req?'<span class="req" aria-hidden="true">*</span>':'<span class="opt">(opcjonalnie)</span>'}</span>${tag==="textarea"?`<textarea id="${id}" ${req?"required":""}></textarea>`:`<input id="${id}" type="${type}" ${req?"required":""}>`}<span class="err">To pole jest wymagane.</span></label>`;
+ return `<section class="subhero"><div class="subhero-in">${crumbs([["Strona główna","home"],["Kontakt"]])}<h1>Kontakt</h1><p>Napisz, zadzwoń albo od razu umów spotkanie. Odpowiadamy w ciągu jednego dnia roboczego.</p></div><span class="subhero-label">Zdjęcie w tle (opcjonalnie)</span></section>
+  <section class="cta-band ct-top"><div><h2>Chcesz od razu zarezerwować termin?</h2><p>Skorzystaj z naszej umawiarki spotkań: wybierz rodzaj konsultacji i dogodny termin, bez czekania na odpowiedź.</p></div><button class="cta" data-go="umow">Umów spotkanie on-line</button></section>
+  <div class="ct"><div class="ct-groups">
+   <div class="ct-card"><h2>Telefon i e-mail</h2><p class="big">${tel("+48 22 622 03 85")}</p><p class="big">${mail("kaos@kaos.pl")}</p></div>
+   <div class="ct-card"><h2>Adres biura</h2><p>ul. Jana i Jędrzeja Śniadeckich 17</p><p>00-654 Warszawa</p></div>
+   <div class="ct-card wide"><h2>Dane rejestrowe</h2><dl><dt>Nazwa</dt><dd>Kancelaria Adwokacka Osiński spółka komandytowa</dd><dt>KRS</dt><dd>0000581446 (Sąd Rejonowy dla m.st. Warszawy, XII Wydział Gospodarczy KRS)</dd><dt>NIP</dt><dd>5252632794</dd><dt>REGON</dt><dd>36278760800000</dd></dl></div>
+   <div class="ct-card wide"><h2>Dane do przelewu</h2><dl><dt>Bank</dt><dd>mBank</dd><dt>Numer konta</dt><dd>PL72 1140 1010 0000 3450 3800 1006</dd><dt>SWIFT</dt><dd>BREXPLPW</dd></dl></div>
+  </div>
+  <form class="ct-form" id="ct-form" novalidate><h2>Napisz do nas</h2>
+   ${f("c-name","Imię i nazwisko","text",1)}${f("c-mail","Adres e-mail","email",1)}${f("c-tel","Numer telefonu","tel",0,1)}${f("c-msg","Treść wiadomości","",1,1,"textarea")}
+   <div class="form-foot full"><label class="consent" for="c-rodo"><input type="checkbox" id="c-rodo" required> <span>Wyrażam zgodę na przetwarzanie moich danych osobowych w celu odpowiedzi na wiadomość (treść klauzuli do uzupełnienia). <span class="req">*</span></span></label>
+    <button class="btn-send" type="submit">Wyślij</button></div>
+   <p class="sent full" id="c-sent" hidden>To makieta: wiadomość nie została nigdzie wysłana.</p>
+  </form></div>
+  <section class="section"><div class="sec-head"><h2>Co się wydarzy po wysłaniu wiadomości?</h2></div>
+   <ol class="steps">${[["Potwierdzenie","Na podany adres e-mail od razu dostaniesz potwierdzenie, że wiadomość do nas dotarła."],["Kontakt w ciągu 24 godzin","W dni robocze w ciągu 24 godzin odezwie się do Ciebie prawnik, który zajmie się sprawą."],["Omówienie Twojej sprawy","Umawiamy rozmowę lub spotkanie, na którym omawiamy problem i proponujemy dalsze kroki."]].map(([h,t],i)=>`<li><span class="num">0${i+1}</span><h3>${h}</h3><p>${t}</p></li>`).join("")}</ol></section>
+  <div class="ph map"><div><div class="pin" style="margin-inline:auto"></div>Mapa Google Maps z lokalizacją biura<br>ul. Jana i Jędrzeja Śniadeckich 17, Warszawa</div></div>
+  <section class="faq" style="max-width:none" aria-labelledby="ct-faq"><h2 id="ct-faq">Najczęściej zadawane pytania</h2>
+   ${CONTACT_FAQ.map(([q,a],i)=>`<details${i===0?" open":""}><summary>${q}</summary><p>${a}</p></details>`).join("")}</section>
+`;
+}
+function initContact(){
+ const form=document.getElementById("ct-form");if(!form)return;
+ form.addEventListener("submit",e=>{e.preventDefault();let ok=true;
+  form.querySelectorAll(".field").forEach(l=>{const el=l.querySelector("input,textarea");const bad=el.required&&!el.value.trim();l.classList.toggle("invalid",bad);if(bad)ok=false});
+  const c=document.getElementById("c-rodo");c.closest(".consent").classList.toggle("invalid",!c.checked);if(!c.checked)ok=false;
+  document.getElementById("c-sent").hidden=!ok;});
+}
+
+// umów się on-line: dwie ścieżki (osobne kalendarze ZenCal) + regulamin konsultacji z rozwijaniem
+const RULES=[
+ ["§ 1. Postanowienia ogólne","Niniejszy regulamin określa zasady umawiania i odbywania konsultacji prawnych z prawnikami Kancelarii Adwokackiej Osiński sp.k. za pośrednictwem formularza rezerwacji on-line. Rezerwacja terminu oznacza akceptację regulaminu."],
+ ["§ 2. Rezerwacja terminu","Termin konsultacji wybierasz w kalendarzu rezerwacji. Po rezerwacji otrzymasz potwierdzenie na podany adres e-mail wraz z informacją o formie spotkania: w biurze kancelarii lub on-line."],
+ ["§ 3. Przygotowanie do konsultacji","Przed spotkaniem prosimy o przesłanie dokumentów dotyczących sprawy. Pozwoli to prawnikowi przygotować się do rozmowy i wykorzystać czas konsultacji jak najlepiej."],
+ ["§ 4. Odwołanie i zmiana terminu","Termin można odwołać lub zmienić najpóźniej na 24 godziny przed spotkaniem, korzystając z linku w potwierdzeniu rezerwacji lub kontaktując się z kancelarią."],
+ ["§ 5. Wynagrodzenie","Zasady wynagrodzenia za pierwszą konsultację oraz konsultacje w ramach umowy określa odpowiednio cennik kancelarii lub zawarta umowa."],
+ ["§ 6. Poufność","Wszystkie informacje przekazane podczas konsultacji objęte są tajemnicą adwokacką."],
+ ["§ 7. Postanowienia końcowe","Kancelaria zastrzega sobie prawo do zmiany regulaminu. Zmiany nie dotyczą konsultacji zarezerwowanych przed ich wprowadzeniem."]
+];
+function bookView(){
+ return `<section class="subhero"><div class="subhero-in">${crumbs([["Strona główna","home"],["Umów się on-line"]])}<h1>Umów się on-line</h1><p>Wybierz rodzaj spotkania i zarezerwuj termin w kalendarzu.</p></div><span class="subhero-label">Zdjęcie w tle (opcjonalnie)</span></section>
+  <div class="book-opts">
+   <div class="book-box primary"><div class="ph book-art">Grafika / ilustracja</div><span class="tag">Nowi klienci</span><h2>Chcesz zostać naszym klientem?</h2><button class="cta" data-go="book:nowy">Umów pierwsze spotkanie</button></div>
+   <div class="book-box secondary"><div class="ph book-art">Grafika / ilustracja</div><span class="tag">Obecni klienci</span><h2>Konsultacja w ramach umowy</h2><button class="cta" data-go="book:klient">Umów konsultację</button></div>
+  </div>
+  <section class="rules" id="rules"><h2>Regulamin konsultacji</h2>
+   <p class="sample-note">Tekst przykładowy: do podmiany na regulamin kancelarii.</p>
+   <div class="rules-body" id="rules-body">${RULES.map(([h,t])=>`<h3>${h}</h3><p>${t}</p>`).join("")}</div>
+   <button class="btn-outline rules-toggle" aria-expanded="false" aria-controls="rules-body" onclick="const r=document.getElementById('rules');const o=r.classList.toggle('open');this.setAttribute('aria-expanded',o);this.textContent=o?'Zwiń regulamin':'Pokaż cały regulamin'">Pokaż cały regulamin</button>
+  </section>`;
+}
+
+// umawiarka: makieta przepływu widgetu ZenCal (usługa → termin → dane → potwierdzenie)
+const BOOK_SVC={
+ nowy:{name:"Konsultacja prawna – pierwsze spotkanie",crumb:"Pierwsze spotkanie",dur:"60 min",price:"cena do uzupełnienia",place:"Biuro kancelarii lub spotkanie on-line"},
+ klient:{name:"Konsultacja w ramach umowy",crumb:"Konsultacja w ramach umowy",dur:"30 min",price:"w ramach umowy",place:"Biuro kancelarii lub spotkanie on-line"}
+};
+const ICO={clock:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',pin:'<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>',cash:'<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="1"/><circle cx="12" cy="12" r="2.5"/></svg>'};
+const calState={svc:"nowy",step:1,day:null,slot:null};
+function bookingView(k){
+ calState.svc=BOOK_SVC[k]?k:"nowy";calState.step=1;calState.day=null;calState.slot=null;
+ const v=BOOK_SVC[calState.svc];
+ return `<section class="subhero"><div class="subhero-in">${crumbs([["Strona główna","home"],["Umów się on-line","umow"],[v.crumb]])}<h1>${v.crumb}</h1><p>Wybierz dzień i godzinę, a potem podaj swoje dane. Potwierdzenie dostaniesz e-mailem.</p></div></section>
+  <div class="zc"><aside class="zc-side"><span class="tag">Kancelaria KAOS</span><h2>${v.name}</h2>
+   <ul class="zc-meta"><li>${ICO.clock}${v.dur}</li><li>${ICO.pin}${v.place}</li><li>${ICO.cash}${v.price}</li></ul>
+   <div class="zc-sel" id="zc-sel"></div></aside>
+   <div class="zc-main" id="zc-main"></div></div>
+  <p class="zc-note">Makieta widgetu ZenCal osadzonego na stronie, odtworzona w stylu makiet. Szczegóły usługi (czas, cena) do potwierdzenia z obecną konfiguracją.</p>`;
+}
+const DOW=["Pn","Wt","Śr","Cz","Pt","So","Nd"];
+const SLOTS=["09:00","10:00","11:00","12:00","14:00","15:00","16:00"];
+function renderCal(){
+ const main=document.getElementById("zc-main");if(!main)return;
+ const st=calState,y=2026,m=10;// listopad 2026
+ const first=(new Date(y,m,1).getDay()+6)%7,days=new Date(y,m+1,0).getDate();
+ const av=d=>{const w=(new Date(y,m,d).getDay()+6)%7;return w<5&&d>=2&&d!==11};
+ const label=d=>new Date(y,m,d).toLocaleDateString("pl-PL",{weekday:"long",day:"numeric",month:"long"});
+ const steps=`<div class="zc-steps">${["1. Termin","2. Twoje dane","3. Potwierdzenie"].map((t,i)=>`<span ${i+1===st.step?'aria-current="step"':""}>${t}</span>`).join("<span>›</span>")}</div>`;
+ document.getElementById("zc-sel").innerHTML=st.day?`<span class="tag">Wybrany termin</span><b>${label(st.day)}</b>${st.slot?`godz. ${st.slot}`:"wybierz godzinę"}`:`<span class="tag">Wybrany termin</span><b>—</b>`;
+ if(st.step===1){
+  main.innerHTML=steps+`<div class="zc-pick"><div><div class="zc-month"><button class="arrow" aria-label="Poprzedni miesiąc" disabled>←</button><span>listopad 2026</span><button class="arrow" aria-label="Następny miesiąc">→</button></div>
+   <div class="zc-grid">${DOW.map(d=>`<span class="dow">${d}</span>`).join("")}${"<span></span>".repeat(first)}${Array.from({length:days},(_,i)=>i+1).map(d=>`<button class="zc-day${av(d)?" av":""}" ${av(d)?`data-day="${d}"`:"disabled"} aria-pressed="${st.day===d}">${d}</button>`).join("")}</div></div>
+   <div class="zc-slots">${st.day?`<h3>${label(st.day)}</h3><div class="list">${SLOTS.map(t=>`<button class="zc-slot" data-slot="${t}" aria-pressed="${st.slot===t}">${t}</button>`).join("")}</div>${st.slot?`<button class="cta zc-next" data-zstep="2">Dalej</button>`:""}`:`<p class="intro">Wybierz dzień w kalendarzu, żeby zobaczyć wolne godziny.</p>`}</div></div>`;
+ } else if(st.step===2){
+  main.innerHTML=steps+`<form class="zc-form" id="zc-form" novalidate>
+   <label class="field" for="z-fn">Imię *<input id="z-fn" required></label><label class="field" for="z-ln">Nazwisko *<input id="z-ln" required></label>
+   <label class="field" for="z-mail">E-mail *<input id="z-mail" type="email" required></label><label class="field" for="z-tel">Telefon *<input id="z-tel" type="tel" required></label>
+   <label class="field full" for="z-form">Forma spotkania<select id="z-form" style="font:inherit;padding:10px 12px;border:1px solid var(--line);background:var(--bg);color:var(--fg)"><option>Spotkanie w biurze kancelarii</option><option>Spotkanie on-line</option></select></label>
+   <label class="field full" for="z-msg"><span>Krótki opis sprawy <span class="opt">(opcjonalnie)</span></span><textarea id="z-msg"></textarea></label>
+   <label class="consent full" for="z-rodo"><input type="checkbox" id="z-rodo"> Akceptuję regulamin konsultacji i zasady przetwarzania danych osobowych. *</label>
+   <div class="zc-actions full"><button type="button" class="btn-outline" data-zstep="1">← Wstecz</button><button type="submit" class="cta">Zarezerwuj termin</button></div></form>`;
+  document.getElementById("zc-form").addEventListener("submit",e=>{e.preventDefault();st.step=3;renderCal()});
+ } else {
+  main.innerHTML=steps+`<div class="zc-done"><div class="ok" aria-hidden="true">✓</div><h2 style="margin:0 0 8px">Termin zarezerwowany</h2><p class="intro" style="margin:0 auto 20px">${label(st.day)}, godz. ${st.slot}. Potwierdzenie i szczegóły spotkania wysłaliśmy na podany adres e-mail.</p><button class="btn-outline" data-go="home">Wróć na stronę główną</button></div>`;
+ }
+}
+document.addEventListener("click",e=>{
+ const d=e.target.closest("[data-day]");if(d){calState.day=+d.dataset.day;calState.slot=null;renderCal();return}
+ const t=e.target.closest("[data-slot]");if(t){calState.slot=t.dataset.slot;renderCal();return}
+ const n=e.target.closest("[data-zstep]");if(n){calState.step=+n.dataset.zstep;renderCal()}
+});
+
+function notFoundView(){return `<section class="e404"><div class="e404-in">
+  <div><span class="tag">Błąd 404</span><h1>Szukana strona nie istnieje</h1><p>Mogła zostać przeniesiona lub usunięta, albo w adresie jest literówka. Możesz wrócić do strony głównej.</p>
+   <button class="cta" data-go="home">Przejdź do strony głównej</button></div>
+  <div class="e404-art" aria-hidden="true"><span>404</span><em>Grafika / ilustracja</em></div></div></section>
+ <section class="section"><div class="sec-head"><h2>Możesz także zobaczyć najnowsze aktualności</h2></div>
+  <div class="posts">${POSTS.slice(0,6).map(postCard).join("")}</div>
+  <div class="center-btn"><button class="btn-outline" data-go="aktualnosci">Zobacz wszystkie aktualności</button></div></section>`}
+function gcArt(){return `<svg class="gc-art gf" viewBox="0 0 300 300" aria-hidden="true"><g class="gf-zoom">
+   <g class="gf-r" data-k="2"><rect x="10" y="10" width="280" height="280"/><text x="24" y="34">Co</text></g>
+   <g class="gf-r" data-k="1"><rect x="60" y="80" width="180" height="180"/><text x="74" y="104">Jak</text></g>
+   <g class="gf-r" data-k="0"><rect x="110" y="150" width="80" height="80"/><text x="150" y="194">Dlaczego</text></g></g></svg>`;
+}
+function gcSync(){const g=document.getElementById("gc");if(!g)return;const mid=innerHeight/2;let best=0,bd=1e9;
+ const R=g.getBoundingClientRect();g.style.setProperty("--p",Math.min(1,Math.max(0,(mid-R.top)/R.height)).toFixed(3));
+ g.querySelectorAll(".gc-step").forEach((el,i)=>{const r=el.getBoundingClientRect(),d=Math.abs(r.top+r.height/2-mid);if(d<bd){bd=d;best=i}});
+ g.querySelectorAll("[data-k]").forEach(e=>{const k=+e.dataset.k;e.classList.toggle("on",k===best);e.classList.toggle("past",k<best)});g.dataset.s=best}
+window.addEventListener("scroll",gcSync,{passive:true});
+let cookieDone=false;
+const ck=document.createElement("section");ck.className="cookie";ck.setAttribute("aria-label","Pliki cookies");ck.hidden=true;document.body.appendChild(ck);
+function renderCookie(more){ck.innerHTML=`<h2>Ta strona używa plików cookies</h2><p>Używamy cookies, żeby strona działała poprawnie, a za Twoją zgodą także do analizy ruchu. Szczegóły znajdziesz w <button data-go="txt:polityka-cookies">polityce cookies</button>.</p>
+ ${more?`<fieldset class="ck-opts"><legend>Rodzaje cookies</legend><label><input type="checkbox" checked disabled> Niezbędne (zawsze aktywne)</label><label><input type="checkbox"> Analityczne</label><label><input type="checkbox"> Marketingowe</label></fieldset>`:""}
+ <div class="ck-act"><button class="ck-yes" data-ck="ok">Akceptuję wszystkie</button>${more?`<button class="ck-alt" data-ck="ok">Zapisz wybór</button>`:`<button class="ck-alt" data-ck="more">Ustawienia</button>`}</div>`}
+ck.addEventListener("click",e=>{const b=e.target.closest("[data-ck]");if(!b)return;if(b.dataset.ck==="more")renderCookie(true);else{cookieDone=true;ck.hidden=true}});
+function syncCookie(r){if(!ck.innerHTML)renderCookie(false);ck.hidden=cookieDone||r!=="home"}
+function sqSync(){const q=document.getElementById("svc-quote");if(!q)return;const r=q.querySelector("blockquote").getBoundingClientRect(),ih=innerHeight;
+ const pr=Math.min(1,Math.max(0,(ih*.85-r.top)/(ih*.85-ih*.2)));const w=q.querySelectorAll("blockquote span");const n=Math.round(pr*w.length);
+ w.forEach((e,i)=>e.classList.toggle("lit",i<n))}
+window.addEventListener("scroll",sqSync,{passive:true});
+const ABOUT_FAQ=[
+ ["Dla kogo pracuje kancelaria?","Dla spółek publicznych i spółek z NewConnect, inwestorów oraz właścicieli firm. Najczęściej trafiają do nas sprawy złożone, w których potrzebny jest jeden zespół od początku do końca."],
+ ["Kto będzie prowadził moją sprawę?","Każdą sprawą kieruje partner, który zna ją od pierwszego spotkania. Wspiera go zespół dobrany do tematu: prawnicy od transakcji, sporów, restrukturyzacji czy prawa karnego gospodarczego."],
+ ["Czy prowadzicie sprawy w całej Polsce?","Tak. Biuro mamy w Warszawie, ale reprezentujemy klientów przed sądami i urzędami w całym kraju. Spotkania mogą odbywać się w biurze lub on-line."],
+ ["Jak wygląda rozliczenie za pracę kancelarii?","Po pierwszym spotkaniu przedstawiamy wycenę dopasowaną do sprawy: ryczałt, stawkę godzinową albo stałą miesięczną obsługę. Koszty znasz przed rozpoczęciem pracy."],
+ ["Czy mogę skonsultować sprawę, zanim zdecyduję się na współpracę?","Tak. Umów pierwsze spotkanie przez umawiarkę on-line. Poznamy sytuację i powiemy wprost, czy i jak możemy pomóc."],
+ ["Czy współpracujecie z innymi doradcami klienta?","Tak. W wielu sprawach pracujemy razem z doradcami podatkowymi, biegłymi rewidentami i doradcami finansowymi klienta, żeby cała strategia była spójna."]];
+const SVC={
+ "Umowy inwestycyjne":{lead:"Układamy wejście inwestora tak, żeby chronić interes założycieli i spółki na lata.",
+  body:["Pomagamy założycielom i inwestorom ułożyć współpracę od pierwszego term sheetu po wykonanie umowy. Zaczynamy od struktury inwestycji: kto, ile i na jakich warunkach obejmuje udziały, jak wygląda ład korporacyjny i co się dzieje, gdy plan się zmienia.","Korzystamy z rozbudowanej bazy sprawdzonych klauzul, dlatego umowa jest szyta na miarę, a nie pisana od zera. Przygotowujemy też pełną dokumentację wykonawczą: uchwały, załączniki i wszystko, czego potrzeba, by transakcja weszła w życie.","Patrzymy na umowę oczami inwestora, bo od lat pracujemy po obu stronach stołu. Dzięki temu założyciele wiedzą, które postanowienia są standardem rynkowym, a o które warto walczyć. Inwestorzy dostają z kolei dokumenty, które realnie zabezpieczają ich kapitał.","Gdy inwestycja łączy się z innymi operacjami, na przykład przekształceniem spółki w S.A., emisją akcji czy wejściem na NewConnect, prowadzimy wszystkie wątki równolegle w jednym zespole. Klient nie musi koordynować kilku doradców ani pilnować, czy dokumenty do siebie pasują."],
+  who:["Założyciele spółek, które pozyskują pierwszego lub kolejnego inwestora","Fundusze VC i PE, aniołowie biznesu i inwestorzy prywatni","Spółki publiczne wprowadzające inwestora strategicznego","Wspólnicy, którzy porządkują wzajemne relacje i zasady wyjścia"],
+  cases:["Runda finansowania i wejście funduszu do spółki","Odkupienie udziałów od wspólnika lub wejście nowego wspólnika","Umowa wspólników przy spółce joint venture","Renegocjacja praw inwestora po kolejnej rundzie"],
+  op:{q:"Przy wejściu funduszu do naszej spółki kancelaria zadbała o każdy szczegół umowy inwestycyjnej. Negocjacje były twarde, ale przez cały czas wiedzieliśmy, że ktoś pilnuje naszego interesu i mówi wprost, na co się zgodzić, a na co nie.",name:"Tomasz Lewandowski",who:"Współzałożyciel i CEO, spółka technologiczna",logo:1},
+  scope:["Strukturyzowanie inwestycji founder–inwestor","Projekty i negocjacje umów inwestycyjnych","Rozbudowana baza sprawdzonych klauzul","Pełna dokumentacja wykonawcza (uchwały, załączniki)"],
+  quote:"Prowadzimy najbardziej złożone projekty dla spółek giełdowych, od due diligence i negocjacji inwestycyjnych po równoległe emisje akcji, także przy inwestycjach rzędu setek milionów złotych.",
+  team:[0,1],
+  faq:[["Kiedy warto zaangażować prawnika przy wejściu inwestora?","Najlepiej przed podpisaniem term sheetu. To na tym etapie ustala się wycenę, prawa inwestora i zasady wyjścia, które potem trudno zmienić."],
+   ["Reprezentujecie założycieli czy inwestorów?","Obie strony, ale w danej transakcji zawsze tylko jedną. Znamy perspektywę inwestora, dlatego założycielom łatwiej przewidzieć jego oczekiwania."],
+   ["Jakie klauzule są najważniejsze w umowie inwestycyjnej?","Najczęściej negocjuje się prawa weta, tag-along i drag-along, ochronę przed rozwodnieniem, vesting założycieli oraz zasady wyjścia z inwestycji."],
+   ["Ile trwa przygotowanie umowy inwestycyjnej?","Zależy od liczby stron i zakresu negocjacji. Prostą rundę zamykamy w kilka tygodni, przy złożonych transakcjach ustalamy harmonogram na pierwszym spotkaniu."],
+   ["Czy zajmujecie się też dokumentami po podpisaniu umowy?","Tak. Przygotowujemy uchwały, zmiany umowy spółki i wnioski do KRS, żeby inwestycja została formalnie domknięta."]]},
+ "Transakcje nabycia udziałów i akcji (M&A)":{lead:"Prowadzimy kupno i sprzedaż spółek od term sheetu po zamknięcie transakcji.",
+  scope:["Przygotowanie term sheetów","Due diligence prawne (we współpracy z audytorem finansowym)","Negocjacje i dokumentacja transakcyjna","Kompleksowe wsparcie przy zawarciu transakcji"],team:[1,0]},
+ "Przekształcenia i łączenie spółek":{lead:"Zmieniamy formę spółek i łączymy je w rytmie potrzeb biznesu, także przy spółkach publicznych.",
+  scope:["Przekształcenia, w tym pod NewConnect (sp. z o.o. → S.A.)","Pełne prowadzenie procesu, także równolegle z innymi operacjami","Ścisła współpraca z księgowymi i biegłymi rewidentami","Rejestracja spółek w S24"],
+  quote:"Nawet najbardziej złożone połączenia spółek, także z udziałem spółek publicznych, można skutecznie zamknąć w mniej niż 90 dni.",team:[0,2]},
+ "Spółki publiczne (GPW, NewConnect, Catalyst)":{lead:"Wspieramy emitentów w obowiązkach informacyjnych i każdej operacji na rynku kapitałowym.",
+  scope:["Obowiązki informacyjne, w tym raportowanie kryzysowe","Przygotowanie do debiutu na NewConnect i przejście na GPW","Delisting z GPW i NewConnect","Reprezentacja przed KDPW, GPW i KNF","Szkolenia z MAR dla zarządów i rad nadzorczych","Programy motywacyjne, relacje inwestorskie, ESG"],
+  quote:"Kancelaria pierwszego wyboru dla spółek z rynku NewConnect: blisko 10% emitentów to nasi obecni lub byli klienci.",team:[0,2]},
+ "Emisje akcji":{lead:"Prowadzimy pozyskanie kapitału od wyboru trybu emisji po rejestrację akcji.",
+  scope:["Podwyższenia kapitału w ofercie prywatnej i publicznej","Doradztwo w wyborze trybu emisji","Komplet dokumentów emisyjnych","Rejestracja w KRS, KDPW i domach maklerskich"],
+  quote:"Ponad 100 przeprowadzonych emisji akcji.",team:[0,2]},
+ "Spory sądowe, instrumenty finansowe i zabezpieczenia":{lead:"Reprezentujemy emitentów i inwestorów w sporach o obligacje, opcje, weksle i zabezpieczenia.",
+  scope:["Spory o obligacje, opcje, weksle, certyfikaty i akcje","Odzyskiwanie środków inwestorów z zabezpieczeń","Analiza ryzyka procesowego i strategia sporu","Odpowiedzialność zarządu i obrona przed roszczeniami","Spory o kredyty walutowe","Administrowanie zabezpieczeniami i ich realizacja"],
+  quote:"Skutecznie obroniliśmy w sądzie spółkę przed roszczeniami inwestorów z umów opcji w stylu europejskim, w oparciu o przepisy ograniczające nabycie akcji własnych.",team:[1,3]},
+ "Restrukturyzacja i upadłość":{lead:"Pomagamy uniknąć upadłości, a gdy do niej dochodzi, chronimy interes dłużnika lub wierzyciela.",
+  scope:["Doradztwo restrukturyzacyjne dla spółek i grup kapitałowych","Reprezentacja dłużników i wierzycieli","Zgłaszanie i zaskarżanie wierzytelności","Wnioski upadłościowe i restrukturyzacyjne","Ochrona zarządu przed odpowiedzialnością osobistą"],
+  quote:"Po skutecznym zaskarżeniu odmowy uznania wierzytelności nasz klient uzyskał ponad 1,3 mln zł więcej w planie podziału.",team:[1,3]},
+ "Przestępczość gospodarcza (white-collar crime)":{lead:"Bronimy członków zarządu i firmy w sprawach oszustw finansowych, działania na szkodę spółki i prania pieniędzy.",
+  scope:["Obrona w sprawach karnych gospodarczych","Reprezentacja pokrzywdzonych i oskarżycieli","Prewencja i zarządzanie ryzykiem karnym w biznesie"],
+  quote:"Zarzuty działania na szkodę spółki na kwotę ponad 5 mln zł zakończyły się umorzeniem, zanim sprawa trafiła do sądu.",team:[3,4]},
+ "Bieżąca obsługa prawna spółek kapitałowych":{lead:"Stałe wsparcie zarządu i rady nadzorczej w codziennych decyzjach spółki.",
+  scope:["Obsługa korporacyjna zarządów, rad nadzorczych i zgromadzeń","Uchwały i dokumentacja korporacyjna","Bieżące doradztwo w decyzjach biznesowych","Kontrola ryzyk prawnych i odpowiedzialności zarządu"],team:[2,5]},
+ "ASI i fundacje rodzinne":{lead:"Budujemy struktury, które chronią majątek i porządkują sukcesję w rodzinie.",
+  scope:["Tworzenie i strukturyzowanie ASI oraz ich bieżąca obsługa","Zakładanie fundacji rodzinnych od wyboru formy po dokumentację","Współpraca z doradcami podatkowymi","Bieżące wsparcie w zarządzaniu majątkiem"],
+  quote:"Fundacja rodzinna to jedno z najbezpieczniejszych narzędzi ochrony i sukcesji majątku.",team:[0,5]},
+ "Nieruchomości":{lead:"Obsługujemy transakcje, umowy i spory dotyczące nieruchomości inwestycyjnych.",
+  scope:["Due diligence nieruchomości i projektów inwestycyjnych","Sprzedaż, zakup i przewłaszczenie na zabezpieczenie","Umowy najmu i dzierżawy","Hipoteki, służebności i inne prawa rzeczowe","Roszczenia z umów przedwstępnych"],team:[5,4]}
+};
+const SVC_STEPS=[["Poznajemy sprawę","Cele, ryzyka i ludzie, którzy podejmują decyzje."],["Proponujemy strategię","Jasna rekomendacja: co zrobić, kiedy i za ile."],["Prowadzimy do końca","Negocjacje, dokumenty i formalności w jednych rękach."],["Pilnujemy wykonania","Terminy, rejestracje i kolejne kroki z wyprzedzeniem."]];
+const CHECK=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`;
+function svcView(a,name){const d=SVC[name]||{lead:"",scope:[],team:[0]};const lawyers=d.team.map(i=>[TEAM[i],i]);
+ const faq=d.faq||[["Od czego zaczyna się współpraca?","Od spotkania, na którym poznajemy sprawę i cele. Po nim przedstawiamy rekomendację i wycenę."],["Kto będzie prowadził sprawę?","Partner, który zna ją od pierwszego spotkania, wspierany przez zespół dobrany do tematu."],["Ile to kosztuje?","Wycenę przygotowujemy po pierwszym spotkaniu: ryczałt, stawka godzinowa albo stała obsługa."]];
+ return `<section class="subhero"><div class="subhero-in">${crumbs([["Strona główna","home"],["Specjalizacje"],[a.name,"area:"+a.id],[name]])}<span class="subhero-kicker">${a.name}</span><h1>${name}</h1><p>${d.lead}</p></div><span class="subhero-label">Zdjęcie w tle (opcjonalnie)</span></section>
+ <section class="section svc-intro"><div class="svc-text"><h2>Na czym polega nasza pomoc</h2>${(d.body||[d.lead,"W ramach tej usługi zajmujemy się w szczególności: "+d.scope.map(x=>x.charAt(0).toLowerCase()+x.slice(1)).join(", ")+".","Każdą sprawą kieruje partner, który zna ją od pierwszego spotkania. Łączymy wiedzę z różnych dziedzin prawa, żeby klient nie musiał koordynować kilku doradców, a rekomendację zawsze dajemy konkretną: co zrobić, kiedy i dlaczego."]).map(t=>`<p>${t}</p>`).join("")}
+   ${d.who?`<div class="svc-lists"><div><h3>Dla kogo</h3><ul>${d.who.map(x=>`<li>${x}</li>`).join("")}</ul></div><div><h3>Z czym przychodzą klienci</h3><ul>${d.cases.map(x=>`<li>${x}</li>`).join("")}</ul></div></div>`:""}</div>
+  <div class="svc-scope"><h3>Zakres usługi</h3><ul>${d.scope.map(x=>`<li>${CHECK}<span>${x}</span></li>`).join("")}</ul></div></section>
+ ${d.quote?`<section class="svc-quote" id="svc-quote"><div class="sq-stick"><span class="tag">Z naszej praktyki</span><blockquote>${("„"+d.quote+"”").split(" ").map(w=>`<span>${w}</span>`).join(" ")}</blockquote></div></section>`:""}
+ <section class="section"><div class="sec-head"><h2>Prawnicy prowadzący</h2></div>
+  <div class="team svc-team">${lawyers.map(([t,i])=>personCard(t,i)).join("")}</div></section>
+ <section class="svc-op-wrap" aria-label="Opinia klienta"><figure class="svc-op"><span class="op-mark" aria-hidden="true">“</span>${opInner(d.op||QUOTES[Object.keys(SVC).indexOf(name)%QUOTES.length])}</figure></section>
+ ${contactBlock()}
+ <section class="faq" style="max-width:none" aria-labelledby="svc-faq"><h2 id="svc-faq">Najczęściej zadawane pytania</h2>
+  ${faq.map(([q,x],i)=>`<details${i===0?" open":""}><summary>${q}</summary><p>${x}</p></details>`).join("")}</section>
+ <p class="sample-note">Zakres usług i cytaty z broszury kancelarii. Opinia klienta, przypisanie prawników i odpowiedzi w FAQ to przykłady do weryfikacji.</p>`}
+const VALUES=[["Spokój klienta","Przejmujemy presję sprawy, żeby klient mógł zająć się biznesem."],["Jakość i rzetelność","Pracujemy tak, by nikt nie musiał niczego po nas poprawiać."],["Trwałość relacji","Budujemy relacje na lata, nie na jedno zlecenie. Reputacji nie ryzykujemy dla doraźnego wyniku."]];
+const HOW=[["Spokojnie","Bierzemy na siebie ciężar sprawy i jej stres."],["Konkretnie","Rekomendacja zawsze jasna: co zrobić, kiedy i dlaczego."],["Do końca","Prowadzimy sprawę od pierwszego do ostatniego kroku."],["Z wyprzedzeniem","Pilnujemy terminów i ruchów drugiej strony z własnej inicjatywy."]];
+const STATS=[["40+","przekształceń spółek"],["100+","emisji akcji"],["~10%","emitentów NewConnect to nasi klienci"],["<90 dni","na połączenie spółek"],["<1,5 mies.","na przekształcenie spółki"],["1,3 mln zł","więcej dla klienta w podziale masy upadłości"],["5 mln zł","zarzutów wobec klienta umorzonych"],["XX lat","na rynku (do uzupełnienia)"]];
+function aboutView(){return `<section class="subhero"><div class="subhero-in">${crumbs([["Strona główna","home"],["O kancelarii"]])}<h1>O kancelarii</h1><p>Złożone sprawy biznesowe, prowadzone od początku do końca w ramach jednej, spójnej strategii.</p></div><span class="subhero-label">Zdjęcie w tle (opcjonalnie)</span></section>
+ <div class="section about"><div><span class="tag">Kim jesteśmy</span><h2>Jeden zespół na całą sprawę</h2>
+   <p class="about-lead">Prowadzimy złożone sprawy biznesowe, które nie mają gotowej ścieżki i w których klient potrzebuje jednego zespołu od początku do końca.</p>
+   <p>Pracujemy dla spółek publicznych, spółek z NewConnect, inwestorów i właścicieli firm, którzy często ryzykują własnym majątkiem. Przejmujemy presję, łączymy wiedzę z różnych dziedzin prawa i doprowadzamy sprawę do rozstrzygnięcia.</p>
+   <p>Chcemy być pierwszym wyborem dla spółek i inwestorów, z którymi pracujemy przez lata, a nie przy jednym zleceniu.</p></div>
+  <div class="ph about-photo">Zdjęcie (partnerzy / biuro)</div></div>
+ <section class="section"><div class="sec-head"><h2>Nasze podejście</h2></div>
+  <div class="gc" id="gc"><div class="gc-stick" id="gc-art">${gcArt()}</div>
+   <ol class="gc-list">
+    <li class="gc-step on" data-k="0"><div><span class="tag">Dlaczego</span><h3>Lubimy przecierać szlaki</h3><p>Najtrudniejsze sprawy biznesowe nie mają gotowej ścieżki. IPO, fuzje, wielomilionowe wierzytelności, osobista odpowiedzialność zarządu: tam, gdzie dla klienta najwięcej zależy od wyniku, czujemy się najlepiej.</p></div></li>
+    <li class="gc-step" data-k="1"><div><span class="tag">Jak</span><h3>Patrzymy oczami inwestora i łączymy wątki</h3><p>Prowadzimy sprawę od pierwszego do ostatniego kroku. Łączymy prawo cywilne, upadłościowe, karne i nieruchomości, żeby klient nie musiał koordynować czterech kancelarii.</p></div></li>
+    <li class="gc-step" data-k="2"><div><span class="tag">Co</span><h3>Trzy obszary, jedna strategia</h3><p>Rynek kapitałowy, złożone postępowania oraz organizowanie i zabezpieczanie spółek.</p></div></li>
+   </ol></div></section>
+ <section class="section"><div class="sec-head"><h2>Specjalizacje</h2></div>
+  <div class="spec-all">${AREAS.map(a=>`<div class="col"><h3><button data-go="area:${a.id}">${a.name}</button></h3>
+   <ul>${a.items.map(i=>`<li><button data-go="svc:${a.id}:${slug(i)}">${i}</button></li>`).join("")}</ul>
+   <button class="all" data-go="area:${a.id}">Dowiedz się więcej →</button></div>`).join("")}</div></section>
+ <section class="section"><div class="sec-head"><h2>Nasze wartości</h2></div>
+  <div class="vtree"><div class="vt-hub">Klient</div><span class="vt-stem"></span>
+   <div class="vt-row">${VALUES.map((v,i)=>`<div class="vt-node"><span class="num">0${i+1}</span><h3>${v[0]}</h3><p>${v[1]}</p></div>`).join("")}</div></div></section>
+ <section class="section"><div class="sec-head"><h2>Jak pracujemy</h2></div>
+  <ol class="how">${HOW.map((h,i)=>`<li><span class="dot"></span><span class="num">0${i+1}</span><h3>${h[0]}</h3><p>${h[1]}</p></li>`).join("")}</ol></section>
+ <section class="stats" aria-labelledby="stats-h"><h2 class="stats-h" id="stats-h">KAOS w liczbach</h2><div class="stats-in">${STATS.map(x=>`<div><strong>${x[0]}</strong><span>${x[1]}</span></div>`).join("")}</div></section>
+ <p class="sample-note">Liczby z broszury kancelarii, do potwierdzenia przed publikacją.</p>
+ <section class="section"><div class="sec-head"><h2>Nagrody i wyróżnienia</h2></div>
+  <div class="awards">${[1,2,3,4].map(()=>`<div class="award"><div class="ph">Logo rankingu</div><h3>Nazwa wyróżnienia</h3><p>Kategoria · rok</p></div>`).join("")}</div>
+  <p class="sample-note">Miejsce na rankingi i nagrody, prosimy o listę od kancelarii.</p></section>
+ <section class="section"><div class="sec-head"><h2>Zaufali nam</h2></div>
+  <div class="logos">${LOGOS.map((_,i)=>`<div>${logoHtml(i)}</div>`).join("")}</div></section>
+ <section class="section"><div class="sec-head"><h2>Zespół</h2></div>
+  <div class="team">${TEAM.slice(0,4).map(personCard).join("")}</div><div class="center-btn"><button class="btn-outline" data-go="zespol">Poznaj cały zespół</button></div></section>
+ <section class="cta-band"><div><h2>Potrzebujesz zespołu na całą sprawę?</h2><p>Porozmawiajmy o niej. Na pierwszym spotkaniu poznamy sytuację i powiemy wprost, jak możemy pomóc.</p></div><button class="cta" data-go="umow">Umów się on-line</button></section>
+ <section class="faq" style="max-width:none" aria-labelledby="ab-faq"><h2 id="ab-faq">Najczęściej zadawane pytania</h2>
+  ${ABOUT_FAQ.map(([q,a],i)=>`<details${i===0?" open":""}><summary>${q}</summary><p>${a}</p></details>`).join("")}
+  <p class="sample-note">Przykładowe pytania i odpowiedzi, do weryfikacji przez kancelarię.</p></section>`}
+
+const NEWS=["Zmiany w obowiązkach informacyjnych spółek publicznych","Odpowiedzialność członków zarządu za zobowiązania spółki","Sukcesja w firmie rodzinnej: od czego zacząć","Emisja obligacji krok po kroku","Restrukturyzacja zamiast upadłości: kiedy to możliwe","Jak przygotować spółkę na spór wspólników"];
+// photo:false / logo:null pokazują, że slajd działa także bez zdjęcia lub bez logotypu
+const QUOTES=[
+ {q:"Sprawa była trudna i wielowątkowa, a mimo to przez cały czas wiedzieliśmy, na jakim jesteśmy etapie i co nas czeka. Spokój i konkret od pierwszego spotkania.",name:"Jan Kowalski",who:"Prezes zarządu, spółka z NewConnect",photo:true,logo:0},
+ {q:"Kancelaria przeprowadziła nas przez emisję obligacji bez jednego zbędnego dokumentu. Liczyło się to, co ważne dla inwestorów.",name:"Anna Nowak",who:"CFO, emitent obligacji",photo:true,logo:null},
+ {q:"Odzyskaliśmy wierzytelność, którą inni uznali za straconą. Prowadzili sprawę do samego końca.",name:"Piotr Wiśniewski",who:"Dyrektor finansowy, firma leasingowa",photo:false,logo:2},
+ {q:"Przygotowali sukcesję tak, że firma ani przez chwilę nie straciła stabilności. Działali z wyprzedzeniem.",name:"Maria Zielińska",who:"Właścicielka, firma rodzinna",photo:false,logo:null}
+];
+const LOGOS=[["Verta","lg1","c"],["Hollen","lg2",""],["moravo","lg3","d"],["Pellis","lg4","f"],["KORDAN","lg1",""],["Altora","lg2","c"],["nexima","lg3","f"],["Strand","lg4","d"]];
+const logoHtml=i=>{const l=LOGOS[i];return `<span class="mk ${l[2]}"></span><span class="${l[1]}">${l[0]}</span>`};
+function contactBlock(){return ` <section class="section"><div class="contact">
+  <div class="left left-pt">
+   <div class="cta-head"><h2>Porozmawiajmy o Twojej sprawie</h2><p>Odpowiadamy w ciągu jednego dnia roboczego.</p></div>
+   <div class="partners">${TEAM.slice(0,2).map(t=>`<div class="pt"><div class="ph">Foto</div><div><b>${t.name}</b><span>Partner</span></div></div>`).join("")}</div>
+   <dl><dt>Telefon</dt><dd>${tel("+48 22 622 03 85")}</dd><dt>E-mail</dt><dd>${mail("kaos@kaos.pl")}</dd><dt>Adres</dt><dd>ul. Jana i Jędrzeja Śniadeckich 17, 00-654 Warszawa</dd></dl>
+   <p class="pt-note">Wiadomości z formularza trafiają na ogólny adres kancelarii i odpowiadają na nie partnerzy.</p>
+   <button class="cta" data-go="umow">Umów się on-line</button>
+  </div>
+  <form id="cform" novalidate>
+   <label class="field" for="f-name">Imię i nazwisko<input id="f-name" required autocomplete="name"></label>
+   <label class="field" for="f-mail">E-mail<input id="f-mail" type="email" required autocomplete="email"></label>
+   <label class="field full" for="f-tel"><span>Telefon <span class="opt">(opcjonalnie)</span></span><input id="f-tel" type="tel" autocomplete="tel"></label>
+   <label class="field full" for="f-msg">Wiadomość<textarea id="f-msg" required></textarea></label>
+   <div class="form-foot full"><label class="consent" for="f-rodo"><input type="checkbox" id="f-rodo"> Zgoda na przetwarzanie danych w celu odpowiedzi (treść klauzuli RODO do uzupełnienia).</label>
+    <button class="btn-send" type="submit">Wyślij</button></div>
+   <p class="sent full" id="sent" hidden>To makieta: wiadomość nie została nigdzie wysłana.</p>
+  </form>
+ </div></section>`}
+function homeExtra(){
+ return `
+ <section class="section"><div class="sec-head"><h2>Obszary specjalizacji</h2></div>
+  <div class="areas">${AREAS.map((a,i)=>`<button class="area-tile" data-go="area:${a.id}"><span class="num">0${i+1}</span><h3>${a.name}</h3></button>`).join("")}</div></section>
+ <section class="section"><div class="sec-head"><h2>Co mówią klienci</h2><span class="tag">Karuzela opinii</span></div>
+  <div class="svc-op op-car" aria-roledescription="karuzela"><span class="op-mark" aria-hidden="true">“</span>
+   <div id="slide" aria-live="polite"></div>
+   <div class="car-ctrl"><button class="arrow" id="prev" aria-label="Poprzednia opinia">←</button><button class="arrow" id="next" aria-label="Następna opinia">→</button>
+    <div class="dots">${QUOTES.map((_,i)=>`<button data-dot="${i}" aria-label="Opinia ${i+1}"></button>`).join("")}</div></div>
+  </div></section>
+ <section class="section"><div class="sec-head"><h2>Zespół</h2></div>
+  <div class="team">${TEAM.slice(0,4).map(personCard).join("")}</div><div class="center-btn"><button class="btn-outline" data-go="zespol">Poznaj cały zespół</button></div></section>
+ <section class="section"><div class="sec-head"><h2>Aktualności</h2><div class="news-ctrl"><button class="arrow" id="n-prev" aria-label="Poprzednie wpisy">←</button><button class="arrow" id="n-next" aria-label="Następne wpisy">→</button></div></div>
+  <div class="news-track" id="news-track">${POSTS.slice(0,6).map(postCard).join("")}</div>
+  <div class="center-btn"><button class="btn-outline" data-go="aktualnosci">Wszystkie wpisy</button></div></section>
+ ${newsletterBlock()}
+ <section class="section"><div class="sec-head"><h2>Zaufali nam</h2><span class="tag">Logotypy przykładowe</span></div>
+  <div class="logos">${LOGOS.map((_,i)=>`<div>${logoHtml(i)}</div>`).join("")}</div></section>
+ ${contactBlock()}`;
+}
+function opInner(o){return `<div class="op-top"><span class="tag">Opinia klienta</span></div>
+  <blockquote class="slide-q">${o.q}</blockquote>
+  <div class="op-who">${o.photo===false?"":`<div class="ph op-avatar">Foto</div>`}<div><b>${o.name}</b><span>${o.who}</span></div><div class="op-logo">${o.logo!=null?logoHtml(o.logo):`<span>Logo klienta</span>`}</div></div>`}
+function initHome(){
+ let i=0;const s=document.getElementById("slide");if(!s)return;
+ const show=n=>{i=(n+QUOTES.length)%QUOTES.length;const q=QUOTES[i];
+  s.innerHTML=opInner(q);
+  document.querySelectorAll("[data-dot]").forEach(d=>d.setAttribute("aria-current",+d.dataset.dot===i))};
+ document.getElementById("prev").onclick=()=>show(i-1);document.getElementById("next").onclick=()=>show(i+1);
+ document.querySelectorAll("[data-dot]").forEach(d=>d.onclick=()=>show(+d.dataset.dot));show(0);
+ const tr=document.getElementById("news-track");const step=()=>tr.firstElementChild.getBoundingClientRect().width+20;
+ document.getElementById("n-prev").onclick=()=>tr.scrollBy({left:-step()});document.getElementById("n-next").onclick=()=>tr.scrollBy({left:step()});
+ document.getElementById("cform").addEventListener("submit",e=>{e.preventDefault();document.getElementById("sent").hidden=false});
+}
+
+// stopka zgodna z menu głównym: Kancelaria · Specjalizacje (4 obszary) · Kontakt
+function renderFooter(){
+ const list=items=>`<ul>${items.map(([t,r])=>`<li><button data-go="${r}">${t}</button></li>`).join("")}</ul>`;
+ document.getElementById("site-footer").innerHTML=`<div class="f-in">
+  <div class="f-brand"><button class="logo" data-go="home" aria-label="Strona główna"><span class="logo-box">LOGO</span><span class="logo-word">KAOS</span></button>
+   <p>Spokojnie. Konkretnie. Do końca. Kancelaria dla biznesu, który działa z wyprzedzeniem.</p>
+   <address><span>ul. Jana i Jędrzeja Śniadeckich 17, 00-654 Warszawa</span><span>${tel("+48 22 622 03 85")}</span><span>${mail("kaos@kaos.pl")}</span><a class="f-li" href="https://www.linkedin.com/company/kancelaria-adwokacka-osi%C5%84ski-sp-k/" target="_blank" rel="noopener" aria-label="KAOS na LinkedIn">${LI_ICON}<span>Zobacz nasz profil na LinkedIn</span></a></address>
+   <button class="cta" data-go="umow">Umów się on-line</button></div>
+  <div class="f-col"><h4>Kancelaria</h4><ul><li><button data-go="o-kancelarii">O kancelarii</button></li><li><button data-go="zespol">Zespół</button></li><li><button data-go="baza-wiedzy">Baza wiedzy</button></li><li><button data-go="aktualnosci">Aktualności</button></li><li><button data-go="kontakt">Kontakt</button></li><li><button data-go="404">Strona 404 (przykład)</button></li></ul></div>
+  ${[AREAS.slice(0,2),AREAS.slice(2)].map((grp,gi)=>`<div class="f-col"><h4>${gi===0?"Specjalizacje":"&nbsp;"}</h4>${grp.map(a=>`<div class="f-area"><h5><button data-go="area:${a.id}">${a.name}</button></h5>${list(a.items.map(i=>[i,"svc:"+a.id+":"+slug(i)]))}</div>`).join("")}</div>`).join("")}
+  </div>
+  <div class="f-bottom"><span>© 2026 KAOS Kancelaria</span><span><button data-go="txt:polityka-prywatnosci">Polityka prywatności</button> · <button data-go="txt:polityka-cookies">Polityka cookies</button> · <button data-go="txt:zasady">Zasady korzystania ze strony internetowej</button></span><span>Makieta: Brave New</span></div>`;
+}
+renderFooter();
+go("home");
+</script>
+
+</body></html>
